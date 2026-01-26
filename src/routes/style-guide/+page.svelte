@@ -1,4 +1,6 @@
 <script>
+	import { onMount } from 'svelte';
+
 	// Honeybloom Design System — Living Style Guide
 	// This page documents and demonstrates all design tokens
 
@@ -6,6 +8,7 @@
 
 	// Scroll tracking for stage experiments
 	let stageElement = $state(null);
+	let heroSection = $state(null);
 	let scrollY = $state(0);
 	let stageScrollY = $derived(() => {
 		if (!stageElement) return 0;
@@ -14,58 +17,129 @@
 	});
 	let scrollUnits = $derived(Math.floor(stageScrollY() / 4)); // 1 scroll unit = 4px
 
-	// Phase 2: Chat bubble animation
-	// Triggered once when scroll crosses threshold, then plays out on timer
-	let currentMsg = $state(0);
-	let animationTriggered = $state(false);
-	let animationTimeouts = $state([]);
+	// ═══════════════════════════════════════════════════════════════
+	// SCROLL PINNING SYSTEM
+	// ═══════════════════════════════════════════════════════════════
 
-	// Threshold in px — triggers when phone is nicely framed
-	const ANIMATION_TRIGGER_PX = 714;
+	// Pin configuration
+	const PIN_START = 715;        // When to start pinning
+	const BUBBLE_BUDGET = 400;    // Scroll budget for bubbles (0-400px)
+	const TILT_BUDGET = 200;      // Scroll budget for tilt (400-600px)
+	const TOTAL_PIN_BUDGET = BUBBLE_BUDGET + TILT_BUDGET; // 600px total
 
-	$effect(() => {
-		const scrollPos = stageScrollY();
+	// Pin state
+	let isPinned = $state(false);
+	let pinnedScrollProgress = $state(0); // 0 to TOTAL_PIN_BUDGET
 
-		// Trigger animation when crossing threshold downward
-		if (!animationTriggered && scrollPos >= ANIMATION_TRIGGER_PX) {
-			animationTriggered = true;
-			// Play out bubble sequence with variable timing based on message content
-			// msg-1: Sophie's opener (immediate - she's eager)
-			// msg-2: User's surprised response (needs reading time + "typing")
-			// msg-3: Sophie's punchline (dramatic pause before value prop lands)
-			// msg-4: User's emotional response (quick genuine reaction)
-			animationTimeouts = [
-				setTimeout(() => { currentMsg = 1; }, 0),
-				setTimeout(() => { currentMsg = 2; }, 1500),
-				setTimeout(() => { currentMsg = 3; }, 3300), // 1500 + 1800
-				setTimeout(() => { currentMsg = 4; }, 4300), // 3300 + 1000
-			];
-		}
-
-		// Reset when scrolling back above threshold — let them replay
-		if (animationTriggered && scrollPos < ANIMATION_TRIGGER_PX) {
-			animationTimeouts.forEach(t => clearTimeout(t));
-			animationTimeouts = [];
-			currentMsg = 0;
-			animationTriggered = false;
-		}
+	// Derived animation states from pinned scroll progress
+	let currentMsg = $derived(() => {
+		if (pinnedScrollProgress === 0) return 0;
+		const bubbleProgress = Math.min(pinnedScrollProgress, BUBBLE_BUDGET);
+		// Each bubble gets 100px of scroll budget
+		if (bubbleProgress < 100) return bubbleProgress > 0 ? 1 : 0;
+		if (bubbleProgress < 200) return 2;
+		if (bubbleProgress < 300) return 3;
+		return 4;
 	});
+
+	// Tilt: maps to anim-1.png through anim-6.png
+	let tiltProgress = $derived(() => {
+		if (pinnedScrollProgress <= BUBBLE_BUDGET) return 0;
+		const tiltScroll = pinnedScrollProgress - BUBBLE_BUDGET;
+		return Math.min(tiltScroll / TILT_BUDGET, 1); // 0 to 1
+	});
+
+	// Frame selection: 0 = msg-0 with bubbles, 1-6 = anim frames
+	let currentFrame = $derived(() => {
+		if (tiltProgress() === 0) return 0;
+		// Map 0-1 progress to frames 1-6
+		return Math.min(6, Math.floor(tiltProgress() * 6) + 1);
+	});
+
+	// Manual toggle for testing (keeps existing button working)
+	let manualBubbles = $state(false);
+	let bubbleTimeouts = $state([]);
+
+	function triggerBubbles() {
+		manualBubbles = true;
+		// Animate pinnedScrollProgress to show bubbles with locked timing
+		// currentMsg mapping: 1-99→1, 100-199→2, 200-299→3, 300+→4
+		pinnedScrollProgress = 0;
+		bubbleTimeouts = [
+			setTimeout(() => { pinnedScrollProgress = 50; }, 0),       // msg 1 (0ms)
+			setTimeout(() => { pinnedScrollProgress = 150; }, 1500),   // msg 2 (+1500ms)
+			setTimeout(() => { pinnedScrollProgress = 250; }, 3300),   // msg 3 (+1800ms)
+			setTimeout(() => { pinnedScrollProgress = 350; }, 4300),   // msg 4 (+1000ms)
+		];
+	}
+
+	function clearBubbles() {
+		bubbleTimeouts.forEach(t => clearTimeout(t));
+		bubbleTimeouts = [];
+		manualBubbles = false;
+		pinnedScrollProgress = 0;
+	}
 
 	function handleScroll() {
 		scrollY = window.scrollY;
+		const stageScroll = stageScrollY();
+
+		// Check if we should START pinning
+		if (!isPinned && stageScroll >= PIN_START && pinnedScrollProgress < TOTAL_PIN_BUDGET) {
+			isPinned = true;
+			// Lock the page scroll
+			document.body.style.overflow = 'hidden';
+		}
+
+		// Handle scrolling back up (reset)
+		if (stageScroll < PIN_START && pinnedScrollProgress === 0) {
+			isPinned = false;
+			document.body.style.overflow = '';
+		}
 	}
 
-	function resetAnimation() {
-		// Clear any pending animation timeouts
-		animationTimeouts.forEach(t => clearTimeout(t));
-		animationTimeouts = [];
-		// Reset msg immediately
-		currentMsg = 0;
-		// Delay resetting trigger flag to avoid race with scroll position
-		setTimeout(() => {
-			animationTriggered = false;
-		}, 100);
+	function handleWheel(e) {
+		if (!isPinned) return;
+
+		// We're pinned — consume the scroll for our animation
+		e.preventDefault();
+
+		// Add wheel delta to our progress (deltaY is positive when scrolling down)
+		pinnedScrollProgress = Math.max(0, Math.min(TOTAL_PIN_BUDGET, pinnedScrollProgress + e.deltaY));
+
+		// Check if we should RELEASE the pin
+		if (pinnedScrollProgress >= TOTAL_PIN_BUDGET) {
+			isPinned = false;
+			document.body.style.overflow = '';
+			// Scroll the page to where it should be after the pin
+			window.scrollTo(0, scrollY + 1);
+		}
+
+		// Handle scrolling back (user scrolls up while pinned)
+		if (pinnedScrollProgress <= 0) {
+			isPinned = false;
+			pinnedScrollProgress = 0;
+			document.body.style.overflow = '';
+		}
 	}
+
+	function resetAll() {
+		// Clear all animation state
+		isPinned = false;
+		pinnedScrollProgress = 0;
+		manualBubbles = false;
+		document.body.style.overflow = '';
+		// Scroll to top of stage
+		stageElement?.scrollIntoView({ behavior: 'instant', block: 'start' });
+	}
+
+	onMount(() => {
+		window.addEventListener('wheel', handleWheel, { passive: false });
+		return () => {
+			window.removeEventListener('wheel', handleWheel);
+			document.body.style.overflow = '';
+		};
+	});
 </script>
 
 <svelte:window on:scroll={handleScroll} />
@@ -86,13 +160,35 @@
 <!-- Scroll unit counter (for stage testing) -->
 <div class="fixed bottom-6 left-6 z-50 p-3 bg-dark/95 border border-magenta/50 rounded-lg font-mono text-sm space-y-2">
 	<div><span class="text-cream/50">px:</span> <span class="text-cream">{stageScrollY()}</span></div>
-	<div><span class="text-cream/50">units:</span> <span class="text-magenta">{scrollUnits}</span></div>
-	<div><span class="text-cream/50">msg:</span> <span class="text-emerald">{currentMsg}</span></div>
+	<div><span class="text-cream/50">pinned:</span> <span class="{isPinned ? 'text-emerald' : 'text-cream/30'}">{isPinned ? 'YES' : 'no'}</span></div>
+	<div><span class="text-cream/50">pin-px:</span> <span class="text-yellow-400">{Math.round(pinnedScrollProgress)}</span></div>
+	<div><span class="text-cream/50">msg:</span> <span class="text-emerald">{currentMsg()}</span></div>
+	<div><span class="text-cream/50">frame:</span> <span class="text-magenta">{currentFrame()}</span></div>
 	<button
 		class="w-full px-2 py-1 bg-magenta/20 border border-magenta/50 rounded text-magenta text-xs hover:bg-magenta/30 transition-colors"
-		onclick={() => { resetAnimation(); stageElement?.scrollIntoView({ behavior: 'instant', block: 'start' }); }}
+		onclick={resetAll}
 	>
 		Reset to 0
+	</button>
+	<button
+		class="w-full px-2 py-1 bg-magenta/20 border border-magenta/50 rounded text-magenta text-xs hover:bg-magenta/30 transition-colors"
+		onclick={() => {
+			resetAll();
+			const stageTop = stageElement?.offsetTop || 0;
+			window.scrollTo({ top: stageTop + 715, behavior: 'instant' });
+		}}
+	>
+		Go to 715px
+	</button>
+</div>
+
+<!-- Stage controls (right side) -->
+<div class="fixed bottom-6 right-6 z-50 p-3 bg-dark/95 border border-magenta/50 rounded-lg font-mono text-sm space-y-2">
+	<button
+		class="w-full px-3 py-2 border rounded text-xs transition-colors {manualBubbles ? 'bg-magenta border-magenta text-cream' : 'bg-magenta/20 border-magenta/50 text-magenta hover:bg-magenta/30'}"
+		onclick={() => { manualBubbles ? clearBubbles() : triggerBubbles(); }}
+	>
+		message bubbles
 	</button>
 </div>
 
@@ -2142,7 +2238,10 @@
 	</nav>
 
 	<!-- Stage Hero — Full Viewport -->
-	<section class="h-screen bg-dark flex flex-col justify-center items-center px-8 relative border-b-4 border-magenta">
+	<section
+		class="h-screen bg-dark flex flex-col justify-center items-center px-8 relative border-b-4 border-magenta"
+		bind:this={heroSection}
+	>
 		<div class="max-w-4xl text-center space-y-6">
 			<h1 class="text-hero text-cream">Finally, someone who remembers.</h1>
 			<p class="text-subhead text-cream/70 max-w-2xl mx-auto leading-relaxed">
@@ -2158,68 +2257,77 @@
 			</div>
 		</div>
 
-		<!-- Scroll indicator -->
-		<div class="absolute bottom-40 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-cream/40 z-10">
+		<!-- Scroll indicator (hide when pinned) -->
+		<div class="absolute bottom-40 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-cream/40 z-10 transition-opacity duration-300 {isPinned || pinnedScrollProgress > 0 ? 'opacity-0' : 'opacity-100'}">
 			<span class="text-small">Scroll to reveal the magic!</span>
 			<svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
 			</svg>
 		</div>
 
-		<!-- Phone — Base image + HTML chat bubbles -->
-		<!-- Width: 400px | TranslateY: 82.5% -->
+		<!-- Phone: msg-0 + bubbles during chat, then anim-1 to anim-6 during tilt -->
 		<div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[82.5%]">
 			<div class="relative" style="width: 400px;">
-				<!-- Base phone (empty chat) — always visible -->
-				<img
-					src="/images/msg-0.png"
-					alt="Sophie chat"
-					class="w-full"
-				/>
 
-				<!-- Chat bubbles overlay — positioned over the chat area -->
-				<!-- Chat area: starts after Sophie header+divider, ends before input bar -->
-				<!-- Side padding: ~7% each side (inside phone frame) -->
-				<div class="absolute inset-0 flex flex-col gap-6 px-[7%] pt-[42%] pb-[17%] overflow-hidden">
+				{#if currentFrame() === 0}
+					<!-- Bubble phase: msg-0 + HTML bubbles -->
+					<img
+						src="/images/msg-0.png"
+						alt="Sophie chat"
+						class="w-full"
+					/>
 
-					<!-- msg-1: Sophie's opener (immediate) -->
-					<div
-						class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
-						style="opacity: {currentMsg >= 1 ? 1 : 0}; transform: translateY({currentMsg >= 1 ? '0' : '10px'});"
-					>
-						<p class="text-cream text-[15px] leading-relaxed">Hey – now that you got your promotion, are you finally getting that model airplane? You know you want it :)</p>
-					</div>
+					<!-- Chat bubbles overlay -->
+					{#if isPinned || pinnedScrollProgress > 0 || manualBubbles}
+						<div class="absolute inset-0 flex flex-col gap-6 px-[7%] pt-[42%] pb-[17%] overflow-hidden">
+							<!-- msg-1: Sophie's opener -->
+							<div
+								class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
+								style="opacity: {currentMsg() >= 1 ? 1 : 0}; transform: translateY({currentMsg() >= 1 ? '0' : '10px'});"
+							>
+								<p class="text-cream text-[15px] leading-relaxed">Hey – now that you got your promotion, are you finally getting that model airplane? You know you want it :)</p>
+							</div>
 
-					<!-- msg-2: User's surprised response (+1500ms) -->
-					<div
-						class="self-end max-w-[80%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
-						style="opacity: {currentMsg >= 2 ? 1 : 0}; transform: translateY({currentMsg >= 2 ? '0' : '10px'});"
-					>
-						<p class="text-cream text-[15px] leading-relaxed">What, how do you remember that?! I must have told you that, what, a year ago?</p>
-					</div>
+							<!-- msg-2: User's response -->
+							<div
+								class="self-end max-w-[80%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
+								style="opacity: {currentMsg() >= 2 ? 1 : 0}; transform: translateY({currentMsg() >= 2 ? '0' : '10px'});"
+							>
+								<p class="text-cream text-[15px] leading-relaxed">What, how do you remember that?! I must have told you that, what, a year ago?</p>
+							</div>
 
-					<!-- msg-3: Sophie's punchline (+1800ms) -->
-					<div
-						class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
-						style="opacity: {currentMsg >= 3 ? 1 : 0}; transform: translateY({currentMsg >= 3 ? '0' : '10px'});"
-					>
-						<p class="text-cream text-[15px] leading-relaxed">Of course I do, silly. I told you! When you talk, I actually listen.</p>
-					</div>
+							<!-- msg-3: Sophie's punchline -->
+							<div
+								class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
+								style="opacity: {currentMsg() >= 3 ? 1 : 0}; transform: translateY({currentMsg() >= 3 ? '0' : '10px'});"
+							>
+								<p class="text-cream text-[15px] leading-relaxed">Of course I do, silly. I told you! When you talk, I actually listen.</p>
+							</div>
 
-					<!-- msg-4: User's emotional response (+1000ms) -->
-					<div
-						class="self-end max-w-[75%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
-						style="opacity: {currentMsg >= 4 ? 1 : 0}; transform: translateY({currentMsg >= 4 ? '0' : '10px'});"
-					>
-						<p class="text-cream text-[15px] leading-relaxed">You're the best, you know that? 😘</p>
-					</div>
+							<!-- msg-4: User's reaction -->
+							<div
+								class="self-end max-w-[75%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
+								style="opacity: {currentMsg() >= 4 ? 1 : 0}; transform: translateY({currentMsg() >= 4 ? '0' : '10px'});"
+							>
+								<p class="text-cream text-[15px] leading-relaxed">You're the best, you know that? 😘</p>
+							</div>
+						</div>
+					{/if}
+				{:else}
+					<!-- Tilt phase: anim-1 through anim-6 (pre-rendered Morflax frames) -->
+					<img
+						src="/images/anim-{currentFrame()}.png"
+						alt="Sophie chat - tilted"
+						class="w-full"
+					/>
+				{/if}
 
-				</div>
 			</div>
 		</div>
+
 	</section>
 
-	<!-- Below the fold — where revealed content will appear -->
+	<!-- Below the fold -->
 	<section class="min-h-screen bg-dark px-8 py-16">
 	</section>
 
