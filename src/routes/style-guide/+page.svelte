@@ -80,6 +80,32 @@
 		pinnedScrollProgress = 0;
 	}
 
+	// Tilt animation toggle
+	let manualTilt = $state(false);
+	let tiltTimeouts = $state([]);
+
+	function triggerTilt() {
+		manualTilt = true;
+		// Start with all bubbles visible, then animate through 6 frames
+		// Frame mapping: 401-433→1, 434-466→2, 467-500→3, 501-533→4, 534-566→5, 567-600→6
+		pinnedScrollProgress = 400; // All bubbles visible
+		tiltTimeouts = [
+			setTimeout(() => { pinnedScrollProgress = 420; }, 0),     // frame 1
+			setTimeout(() => { pinnedScrollProgress = 450; }, 200),   // frame 2
+			setTimeout(() => { pinnedScrollProgress = 480; }, 400),   // frame 3
+			setTimeout(() => { pinnedScrollProgress = 520; }, 600),   // frame 4
+			setTimeout(() => { pinnedScrollProgress = 560; }, 800),   // frame 5
+			setTimeout(() => { pinnedScrollProgress = 600; }, 1000),  // frame 6
+		];
+	}
+
+	function clearTilt() {
+		tiltTimeouts.forEach(t => clearTimeout(t));
+		tiltTimeouts = [];
+		manualTilt = false;
+		pinnedScrollProgress = 0;
+	}
+
 	function handleScroll() {
 		scrollY = window.scrollY;
 		const stageScroll = stageScrollY();
@@ -189,6 +215,12 @@
 		onclick={() => { manualBubbles ? clearBubbles() : triggerBubbles(); }}
 	>
 		message bubbles
+	</button>
+	<button
+		class="w-full px-3 py-2 border rounded text-xs transition-colors {manualTilt ? 'bg-magenta border-magenta text-cream' : 'bg-magenta/20 border-magenta/50 text-magenta hover:bg-magenta/30'}"
+		onclick={() => { manualTilt ? clearTilt() : triggerTilt(); }}
+	>
+		Tilt
 	</button>
 </div>
 
@@ -2239,9 +2271,12 @@
 
 	<!-- Stage Hero — Full Viewport -->
 	<section
-		class="h-screen bg-dark flex flex-col justify-center items-center px-8 relative border-b-4 border-magenta"
+		class="h-screen bg-dark flex flex-col justify-center items-center px-8 relative"
 		bind:this={heroSection}
 	>
+		<!-- Magenta guide lines: left and right thirds only (middle clear for phone) -->
+		<div class="absolute bottom-0 left-0 w-1/3 h-1 bg-magenta"></div>
+		<div class="absolute bottom-0 right-0 w-1/3 h-1 bg-magenta"></div>
 		<div class="max-w-4xl text-center space-y-6">
 			<h1 class="text-hero text-cream">Finally, someone who remembers.</h1>
 			<p class="text-subhead text-cream/70 max-w-2xl mx-auto leading-relaxed">
@@ -2314,7 +2349,7 @@
 						</div>
 					{/if}
 				{:else}
-					<!-- Tilt phase: anim-1 through anim-6 (pre-rendered Morflax frames) -->
+					<!-- Tilt phase: simple frame swap (no crossfade due to transparency) -->
 					<img
 						src="/images/anim-{currentFrame()}.png"
 						alt="Sophie chat - tilted"
