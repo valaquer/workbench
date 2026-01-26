@@ -20,11 +20,14 @@
 	let animationTriggered = $state(false);
 	let animationTimeouts = $state([]);
 
-	// Threshold in px
-	const ANIMATION_TRIGGER_PX = 700;
+	// Threshold in px — triggers when phone is nicely framed
+	const ANIMATION_TRIGGER_PX = 714;
 
 	$effect(() => {
-		if (!animationTriggered && stageScrollY() >= ANIMATION_TRIGGER_PX) {
+		const scrollPos = stageScrollY();
+
+		// Trigger animation when crossing threshold downward
+		if (!animationTriggered && scrollPos >= ANIMATION_TRIGGER_PX) {
 			animationTriggered = true;
 			// Play out bubble sequence with variable timing based on message content
 			// msg-1: Sophie's opener (immediate - she's eager)
@@ -37,6 +40,14 @@
 				setTimeout(() => { currentMsg = 3; }, 3300), // 1500 + 1800
 				setTimeout(() => { currentMsg = 4; }, 4300), // 3300 + 1000
 			];
+		}
+
+		// Reset when scrolling back above threshold — let them replay
+		if (animationTriggered && scrollPos < ANIMATION_TRIGGER_PX) {
+			animationTimeouts.forEach(t => clearTimeout(t));
+			animationTimeouts = [];
+			currentMsg = 0;
+			animationTriggered = false;
 		}
 	});
 
@@ -2171,23 +2182,35 @@
 				<!-- Side padding: ~7% each side (inside phone frame) -->
 				<div class="absolute inset-0 flex flex-col gap-6 px-[7%] pt-[42%] pb-[17%] overflow-hidden">
 
-					<!-- msg-1: Sophie's opener -->
-					<div class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm">
+					<!-- msg-1: Sophie's opener (immediate) -->
+					<div
+						class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
+						style="opacity: {currentMsg >= 1 ? 1 : 0}; transform: translateY({currentMsg >= 1 ? '0' : '10px'});"
+					>
 						<p class="text-cream text-[15px] leading-relaxed">Hey – now that you got your promotion, are you finally getting that model airplane? You know you want it :)</p>
 					</div>
 
-					<!-- msg-2: User's surprised response -->
-					<div class="self-end max-w-[80%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm">
+					<!-- msg-2: User's surprised response (+1500ms) -->
+					<div
+						class="self-end max-w-[80%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
+						style="opacity: {currentMsg >= 2 ? 1 : 0}; transform: translateY({currentMsg >= 2 ? '0' : '10px'});"
+					>
 						<p class="text-cream text-[15px] leading-relaxed">What, how do you remember that?! I must have told you that, what, a year ago?</p>
 					</div>
 
-					<!-- msg-3: Sophie's punchline -->
-					<div class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm">
+					<!-- msg-3: Sophie's punchline (+1800ms) -->
+					<div
+						class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
+						style="opacity: {currentMsg >= 3 ? 1 : 0}; transform: translateY({currentMsg >= 3 ? '0' : '10px'});"
+					>
 						<p class="text-cream text-[15px] leading-relaxed">Of course I do, silly. I told you! When you talk, I actually listen.</p>
 					</div>
 
-					<!-- msg-4: User's emotional response -->
-					<div class="self-end max-w-[75%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm">
+					<!-- msg-4: User's emotional response (+1000ms) -->
+					<div
+						class="self-end max-w-[75%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
+						style="opacity: {currentMsg >= 4 ? 1 : 0}; transform: translateY({currentMsg >= 4 ? '0' : '10px'});"
+					>
 						<p class="text-cream text-[15px] leading-relaxed">You're the best, you know that? 😘</p>
 					</div>
 
