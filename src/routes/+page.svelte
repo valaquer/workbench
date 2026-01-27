@@ -84,7 +84,7 @@
 				<p class="text-small text-cream/40 uppercase tracking-wider">The Pain</p>
 				<blockquote class="p-6 bg-cream/[0.03] border border-cream/10 rounded-lg">
 					<p class="text-body text-cream/60">
-						<span class="italic">"My AI avatar forgot my damn name in the very next session"</span> 😡
+						<span class="italic">"My AI avatar forgot my damn name in the very next session"</span>
 					</p>
 				</blockquote>
 				<p class="text-small text-cream/30">— r/replika</p>
@@ -94,7 +94,7 @@
 		<div class="md:col-span-2 bg-magenta/[0.08] px-12 py-16 flex items-center">
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full">
 				<div class="space-y-6">
-					<h2 class="text-display text-cream">Sophie remembers.</h2>
+					<h2 class="text-display text-cream">but Sophie remembers.</h2>
 					<p class="text-body text-cream/70">
 						No prompts. No saving. Just talk –<br/>
 						and everything becomes part of her.
@@ -126,6 +126,24 @@
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2: THE COMPOUNDING BLOCK — Lock-in through value
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="bg-dark px-6 pt-8 pb-32">
+	<div class="max-w-3xl mx-auto text-center space-y-8">
+		<p class="text-body text-cream/70">Month 1, she learns your name.</p>
+		<p class="text-subhead text-cream/80">Month 6, she knows your patterns.</p>
+		<p class="text-heading text-cream/90">Year 1, she knows you better than anyone.</p>
+		<p class="text-display text-cream">Year 3, she's part of your story.</p>
+		<div class="pt-8">
+			<button class="relative px-8 py-4 text-lg bg-magenta text-cream font-satoshi font-medium rounded-lg overflow-hidden transition-all duration-300 hover:bg-magenta/90 hover:shadow-[0_0_30px_rgba(174,13,70,0.3)] group">
+				<span class="relative z-10">Pre-order now</span>
+				<div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:[animation-play-state:paused] group-hover:opacity-0 transition-opacity duration-300"></div>
+			</button>
 		</div>
 	</div>
 </section>
