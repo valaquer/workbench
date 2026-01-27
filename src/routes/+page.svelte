@@ -133,7 +133,7 @@
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 2: THE COMPOUNDING BLOCK — Lock-in through value
      ═══════════════════════════════════════════════════════════════ -->
-<section class="bg-dark px-6 pt-8 pb-32">
+<section class="bg-dark px-6 pb-32">
 	<div class="max-w-3xl mx-auto text-center space-y-8">
 		<p class="text-body text-cream/70">Month 1, she learns your name.</p>
 		<p class="text-subhead text-cream/80">Month 6, she knows your patterns.</p>

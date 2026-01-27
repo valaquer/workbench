@@ -5,7 +5,7 @@
 	// ═══════════════════════════════════════════════════════════════
 
 	const STORAGE_KEY = 'honeybloom-rulers';
-	const SPACING_INCREMENTS = [8, 16, 24, 32, 64];
+	const SPACING_INCREMENTS = [8, 16, 24, 64, 128];
 
 	// Types
 	interface Ruler {
