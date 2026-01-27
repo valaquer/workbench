@@ -83,8 +83,8 @@
 			<div class="space-y-6">
 				<p class="text-small text-cream/40 uppercase tracking-wider">The Pain</p>
 				<blockquote class="p-6 bg-cream/[0.03] border border-cream/10 rounded-lg">
-					<p class="text-body text-cream/60 italic">
-						"She forgot my name in the next session."
+					<p class="text-body text-cream/60">
+						<span class="italic">"My AI avatar forgot my damn name in the very next session"</span> 😡
 					</p>
 				</blockquote>
 				<p class="text-small text-cream/30">— r/replika</p>
@@ -94,21 +94,35 @@
 		<div class="md:col-span-2 bg-magenta/[0.08] px-12 py-16 flex items-center">
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 w-full">
 				<div class="space-y-6">
-					<p class="text-tech text-magenta">ARTISAN CUT™</p>
-					<h2 class="text-display text-cream">She remembers.</h2>
+					<h2 class="text-display text-cream">Sophie remembers.</h2>
 					<p class="text-body text-cream/70">
 						No prompts. No saving. Just talk –<br/>
 						and everything becomes part of her.
 					</p>
-					<button class="relative px-8 py-4 bg-magenta text-cream font-satoshi font-medium rounded-lg overflow-hidden transition-all duration-300 hover:bg-magenta/90 group">
-						<span class="relative z-10">Pre-order now</span>
-						<div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:[animation-play-state:paused] group-hover:opacity-0 transition-opacity duration-300"></div>
-					</button>
+					<div>
+						<span class="inline-block px-4 py-1.5 -ml-4 text-tech text-magenta bg-magenta/[0.08] border border-magenta/30 rounded">ARTISAN CUT™</span>
+						<p class="text-tech text-magenta mt-2">The memory secret nobody else has figured out</p>
+					</div>
 				</div>
-				<div class="flex items-center justify-center">
-					<!-- Sophie image placeholder -->
-					<div class="w-[280px] h-[350px] bg-magenta/20 border-2 border-magenta/40 rounded-2xl flex items-center justify-center">
-						<p class="text-magenta/50">Sophie image</p>
+				<div class="flex flex-col items-center justify-center">
+					<!-- Memory word cloud -->
+					<div class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 max-w-[400px] text-center">
+						<span class="text-2xl text-cream/90 animate-[pulse_3s_ease-in-out_infinite]">Your history together</span>
+						<span class="text-xs text-cream/60 animate-[pulse_4s_ease-in-out_infinite_0.5s]">Your fears</span>
+						<!-- Lock icon 1 -->
+						<svg class="w-4 h-4 text-emerald/70 animate-[pulse_4s_ease-in-out_infinite_0.3s]" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+						<span class="text-[10px] text-cream/80 animate-[pulse_5s_ease-in-out_infinite_1s] inline-flex items-center gap-0.5"><svg class="w-2.5 h-2.5 text-emerald" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>Your inner world</span>
+						<span class="text-sm text-cream/70 animate-[pulse_3.5s_ease-in-out_infinite_0.3s]">Your dreams</span>
+						<span class="text-[18px] text-cream/50 animate-[pulse_4.5s_ease-in-out_infinite_0.8s]">The stuff you said you love</span>
+						<!-- Lock icon 2 -->
+						<svg class="w-3 h-3 text-emerald/60 animate-[pulse_5s_ease-in-out_infinite_1.2s]" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+						<span class="text-lg text-cream/90 animate-[pulse_3s_ease-in-out_infinite_1.2s] inline-flex items-center gap-1"><svg class="w-4 h-4 text-emerald" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>Everything you don't</span>
+						<span class="text-xs text-cream/60 animate-[pulse_5s_ease-in-out_infinite_0.2s]">Your private moments</span>
+						<span class="text-base text-cream/80 animate-[pulse_4s_ease-in-out_infinite_0.7s]">Your inside jokes</span>
+						<!-- Lock icon 3 -->
+						<svg class="w-5 h-5 text-emerald/50 animate-[pulse_3.5s_ease-in-out_infinite_0.6s]" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+						<span class="text-[10px] text-cream/50 animate-[pulse_3.5s_ease-in-out_infinite_1.5s]">Real-life details</span>
+						<span class="text-sm text-cream font-medium animate-[pulse_4.5s_ease-in-out_infinite_0.4s]">Everything that makes your relationship yours</span>
 					</div>
 				</div>
 			</div>
