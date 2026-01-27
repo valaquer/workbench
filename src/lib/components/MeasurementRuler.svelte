@@ -28,6 +28,13 @@
 		scrollY = window.scrollY;
 	}
 
+	// Initialize scrollY on mount (browser may restore scroll position on refresh)
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			scrollY = window.scrollY;
+		}
+	});
+
 	// Load from localStorage on mount
 	$effect(() => {
 		if (typeof window !== 'undefined') {

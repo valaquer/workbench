@@ -97,10 +97,11 @@
 					<p class="text-tech text-magenta">ARTISAN CUT™</p>
 					<h2 class="text-display text-cream">She remembers.</h2>
 					<p class="text-body text-cream/70">
-						The only real memory architecture in modern AI conversation.
+						No prompts. No saving. Just talk –<br/>
+						and everything becomes part of her.
 					</p>
 					<button class="relative px-8 py-4 bg-magenta text-cream font-satoshi font-medium rounded-lg overflow-hidden transition-all duration-300 hover:bg-magenta/90 group">
-						<span class="relative z-10">Learn more</span>
+						<span class="relative z-10">Pre-order now</span>
 						<div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:[animation-play-state:paused] group-hover:opacity-0 transition-opacity duration-300"></div>
 					</button>
 				</div>
