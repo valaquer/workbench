@@ -1,228 +1,17 @@
 <script>
-	import { onMount } from 'svelte';
-
 	// Honeybloom Design System — Living Style Guide
 	// This page documents and demonstrates all design tokens
-
-	let navStyle = $state('full-bleed'); // temporarily full-bleed while testing stage
-
-	// Scroll tracking for stage experiments
-	let stageElement = $state(null);
-	let heroSection = $state(null);
-	let scrollY = $state(0);
-	let stageScrollY = $derived(() => {
-		if (!stageElement) return 0;
-		const stageTop = stageElement.offsetTop;
-		return Math.max(0, scrollY - stageTop);
-	});
-	let scrollUnits = $derived(Math.floor(stageScrollY() / 4)); // 1 scroll unit = 4px
-
-	// ═══════════════════════════════════════════════════════════════
-	// SCROLL PINNING SYSTEM
-	// ═══════════════════════════════════════════════════════════════
-
-	// Pin configuration
-	const PIN_START = 715;        // When to start pinning
-	const BUBBLE_BUDGET = 400;    // Scroll budget for bubbles (0-400px)
-	const TILT_BUDGET = 200;      // Scroll budget for tilt (400-600px)
-	const TOTAL_PIN_BUDGET = BUBBLE_BUDGET + TILT_BUDGET; // 600px total
-
-	// Pin state
-	let isPinned = $state(false);
-	let pinnedScrollProgress = $state(0); // 0 to TOTAL_PIN_BUDGET
-
-	// Derived animation states from pinned scroll progress
-	let currentMsg = $derived(() => {
-		if (pinnedScrollProgress === 0) return 0;
-		const bubbleProgress = Math.min(pinnedScrollProgress, BUBBLE_BUDGET);
-		// Each bubble gets 100px of scroll budget
-		if (bubbleProgress < 100) return bubbleProgress > 0 ? 1 : 0;
-		if (bubbleProgress < 200) return 2;
-		if (bubbleProgress < 300) return 3;
-		return 4;
-	});
-
-	// Tilt: maps to anim-1.png through anim-6.png
-	let tiltProgress = $derived(() => {
-		if (pinnedScrollProgress <= BUBBLE_BUDGET) return 0;
-		const tiltScroll = pinnedScrollProgress - BUBBLE_BUDGET;
-		return Math.min(tiltScroll / TILT_BUDGET, 1); // 0 to 1
-	});
-
-	// Frame selection: 0 = msg-0 with bubbles, 1-6 = anim frames
-	let currentFrame = $derived(() => {
-		if (tiltProgress() === 0) return 0;
-		// Map 0-1 progress to frames 1-6
-		return Math.min(6, Math.floor(tiltProgress() * 6) + 1);
-	});
-
-	// Manual toggle for testing (keeps existing button working)
-	let manualBubbles = $state(false);
-	let bubbleTimeouts = $state([]);
-
-	function triggerBubbles() {
-		manualBubbles = true;
-		// Animate pinnedScrollProgress to show bubbles with locked timing
-		// currentMsg mapping: 1-99→1, 100-199→2, 200-299→3, 300+→4
-		pinnedScrollProgress = 0;
-		bubbleTimeouts = [
-			setTimeout(() => { pinnedScrollProgress = 50; }, 0),       // msg 1 (0ms)
-			setTimeout(() => { pinnedScrollProgress = 150; }, 1500),   // msg 2 (+1500ms)
-			setTimeout(() => { pinnedScrollProgress = 250; }, 3300),   // msg 3 (+1800ms)
-			setTimeout(() => { pinnedScrollProgress = 350; }, 4300),   // msg 4 (+1000ms)
-		];
-	}
-
-	function clearBubbles() {
-		bubbleTimeouts.forEach(t => clearTimeout(t));
-		bubbleTimeouts = [];
-		manualBubbles = false;
-		pinnedScrollProgress = 0;
-	}
-
-	// Tilt animation toggle
-	let manualTilt = $state(false);
-	let tiltTimeouts = $state([]);
-
-	function triggerTilt() {
-		manualTilt = true;
-		// Start with all bubbles visible, then animate through 6 frames
-		// Frame mapping: 401-433→1, 434-466→2, 467-500→3, 501-533→4, 534-566→5, 567-600→6
-		pinnedScrollProgress = 400; // All bubbles visible
-		tiltTimeouts = [
-			setTimeout(() => { pinnedScrollProgress = 420; }, 0),     // frame 1
-			setTimeout(() => { pinnedScrollProgress = 450; }, 200),   // frame 2
-			setTimeout(() => { pinnedScrollProgress = 480; }, 400),   // frame 3
-			setTimeout(() => { pinnedScrollProgress = 520; }, 600),   // frame 4
-			setTimeout(() => { pinnedScrollProgress = 560; }, 800),   // frame 5
-			setTimeout(() => { pinnedScrollProgress = 600; }, 1000),  // frame 6
-		];
-	}
-
-	function clearTilt() {
-		tiltTimeouts.forEach(t => clearTimeout(t));
-		tiltTimeouts = [];
-		manualTilt = false;
-		pinnedScrollProgress = 0;
-	}
-
-	function handleScroll() {
-		scrollY = window.scrollY;
-		const stageScroll = stageScrollY();
-
-		// Check if we should START pinning
-		if (!isPinned && stageScroll >= PIN_START && pinnedScrollProgress < TOTAL_PIN_BUDGET) {
-			isPinned = true;
-			// Lock the page scroll
-			document.body.style.overflow = 'hidden';
-		}
-
-		// Handle scrolling back up (reset)
-		if (stageScroll < PIN_START && pinnedScrollProgress === 0) {
-			isPinned = false;
-			document.body.style.overflow = '';
-		}
-	}
-
-	function handleWheel(e) {
-		if (!isPinned) return;
-
-		// We're pinned — consume the scroll for our animation
-		e.preventDefault();
-
-		// Add wheel delta to our progress (deltaY is positive when scrolling down)
-		pinnedScrollProgress = Math.max(0, Math.min(TOTAL_PIN_BUDGET, pinnedScrollProgress + e.deltaY));
-
-		// Check if we should RELEASE the pin
-		if (pinnedScrollProgress >= TOTAL_PIN_BUDGET) {
-			isPinned = false;
-			document.body.style.overflow = '';
-			// Scroll the page to where it should be after the pin
-			window.scrollTo(0, scrollY + 1);
-		}
-
-		// Handle scrolling back (user scrolls up while pinned)
-		if (pinnedScrollProgress <= 0) {
-			isPinned = false;
-			pinnedScrollProgress = 0;
-			document.body.style.overflow = '';
-		}
-	}
-
-	function resetAll() {
-		// Clear all animation state
-		isPinned = false;
-		pinnedScrollProgress = 0;
-		manualBubbles = false;
-		document.body.style.overflow = '';
-		// Scroll to top of stage
-		stageElement?.scrollIntoView({ behavior: 'instant', block: 'start' });
-	}
-
-	onMount(() => {
-		window.addEventListener('wheel', handleWheel, { passive: false });
-		return () => {
-			window.removeEventListener('wheel', handleWheel);
-			document.body.style.overflow = '';
-		};
-	});
 </script>
 
-<svelte:window on:scroll={handleScroll} />
-
-<!-- Nav: temporarily hidden for stage testing
-<nav class="fixed top-0 left-0 right-0 z-50 py-4 bg-dark/80 backdrop-blur-sm transition-all duration-300 {navStyle === 'full-bleed' ? 'px-6' : 'px-8 mx-6 md:mx-8 mt-4 rounded-lg border border-cream/10'}">
-	<div class="flex justify-between items-center {navStyle === 'full-bleed' ? 'max-w-7xl mx-auto' : ''}">
+<!-- Nav -->
+<nav class="fixed top-0 left-0 right-0 z-50 py-4 px-6 bg-dark/80 backdrop-blur-sm">
+	<div class="flex justify-between items-center max-w-7xl mx-auto">
 		<a href="/">
-			<img src="/images/honeybloom-logo.png" alt="Honeybloom" class="h-12" />
+			<img src="/images/brand-logo.png" alt="Honeybloom" class="h-12" />
 		</a>
 		<span class="text-tech text-cream/50">Style Guide</span>
 	</div>
 </nav>
--->
-
-<!-- Nav toggle hidden — contained nav is locked decision (see notebook) -->
-
-<!-- Scroll unit counter (for stage testing) -->
-<div class="fixed bottom-6 left-6 z-50 p-3 bg-dark/95 border border-magenta/50 rounded-lg font-mono text-sm space-y-2">
-	<div><span class="text-cream/50">px:</span> <span class="text-cream">{stageScrollY()}</span></div>
-	<div><span class="text-cream/50">pinned:</span> <span class="{isPinned ? 'text-emerald' : 'text-cream/30'}">{isPinned ? 'YES' : 'no'}</span></div>
-	<div><span class="text-cream/50">pin-px:</span> <span class="text-yellow-400">{Math.round(pinnedScrollProgress)}</span></div>
-	<div><span class="text-cream/50">msg:</span> <span class="text-emerald">{currentMsg()}</span></div>
-	<div><span class="text-cream/50">frame:</span> <span class="text-magenta">{currentFrame()}</span></div>
-	<button
-		class="w-full px-2 py-1 bg-magenta/20 border border-magenta/50 rounded text-magenta text-xs hover:bg-magenta/30 transition-colors"
-		onclick={resetAll}
-	>
-		Reset to 0
-	</button>
-	<button
-		class="w-full px-2 py-1 bg-magenta/20 border border-magenta/50 rounded text-magenta text-xs hover:bg-magenta/30 transition-colors"
-		onclick={() => {
-			resetAll();
-			const stageTop = stageElement?.offsetTop || 0;
-			window.scrollTo({ top: stageTop + 715, behavior: 'instant' });
-		}}
-	>
-		Go to 715px
-	</button>
-</div>
-
-<!-- Stage controls (right side) -->
-<div class="fixed bottom-6 right-6 z-50 p-3 bg-dark/95 border border-magenta/50 rounded-lg font-mono text-sm space-y-2">
-	<button
-		class="w-full px-3 py-2 border rounded text-xs transition-colors {manualBubbles ? 'bg-magenta border-magenta text-cream' : 'bg-magenta/20 border-magenta/50 text-magenta hover:bg-magenta/30'}"
-		onclick={() => { manualBubbles ? clearBubbles() : triggerBubbles(); }}
-	>
-		message bubbles
-	</button>
-	<button
-		class="w-full px-3 py-2 border rounded text-xs transition-colors {manualTilt ? 'bg-magenta border-magenta text-cream' : 'bg-magenta/20 border-magenta/50 text-magenta hover:bg-magenta/30'}"
-		onclick={() => { manualTilt ? clearTilt() : triggerTilt(); }}
-	>
-		Tilt
-	</button>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      HERO PREVIEW — Full Viewport Height Demo
@@ -1006,7 +795,7 @@
 			<!-- In Context: Sophie Image -->
 			<div class="space-y-4 border-t border-cream/10 pt-8">
 				<p class="text-tech text-magenta">IN CONTEXT — Sophie Image</p>
-				<p class="text-small text-cream/50">How glows will wrap Sophie's presence on the landing page.</p>
+				<p class="text-small text-cream/50">How glows will wrap Sophie's presence on the product.</p>
 
 				<div class="mt-6 p-12 bg-dark border border-cream/10 rounded-lg flex justify-center">
 					<div class="relative">
@@ -1021,6 +810,29 @@
 				<div class="text-center">
 					<p class="text-tech text-cream/50 text-xs">Layered: blur-3xl glow behind, image in front</p>
 					<p class="text-small text-cream/40 mt-2 italic">Intensity TBD — will test with actual Sophie images to find the right balance.</p>
+				</div>
+			</div>
+
+			<!-- GLOW TRIALS — Real Sophie Image -->
+			<div class="space-y-4 border-t border-cream/10 pt-8">
+				<div class="flex items-center gap-3">
+					<p class="text-tech text-magenta">GLOW TRIALS</p>
+					<span class="px-2 py-0.5 text-xs bg-magenta/20 text-magenta rounded">EXPERIMENTING</span>
+				</div>
+				<p class="text-small text-cream/50">Testing asymmetric glows on actual Sophie image.</p>
+
+				<div class="mt-6 p-12 bg-dark border border-cream/10 rounded-lg flex justify-center">
+					<div class="relative">
+						<!-- Glow (Option E — Dual Corner Orbs + Slow Pulse) -->
+						<div class="absolute -top-8 -right-8 w-48 h-48 bg-magenta/30 rounded-full blur-3xl animate-[pulse_3s_ease-in-out_infinite]"></div>
+						<div class="absolute -bottom-12 -left-12 w-64 h-64 bg-magenta/25 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]"></div>
+						<!-- Sophie image -->
+						<img src="/images/sophie-restaurant.png" alt="Sophie" class="relative w-80 rounded-2xl" />
+					</div>
+				</div>
+				<div class="text-center">
+					<p class="text-tech text-cream/50 text-xs">Small hexagon outline peeking</p>
+					<p class="text-small text-cream/40 mt-1">w-24 h-24 at -top-4 -right-4</p>
 				</div>
 			</div>
 
@@ -1310,7 +1122,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 					<!-- On dark -->
 					<div class="p-8 bg-dark border border-cream/20 rounded-lg flex flex-col items-center gap-4">
-						<img src="/images/honeybloom-logo.png" alt="Honeybloom" class="h-16" />
+						<img src="/images/brand-logo.png" alt="Honeybloom" class="h-16" />
 						<div class="text-center">
 							<p class="text-small text-cream font-medium">On Dark</p>
 							<p class="text-tech text-cream/50 text-xs">Primary usage</p>
@@ -1319,7 +1131,7 @@
 
 					<!-- On magenta -->
 					<div class="p-8 bg-magenta rounded-lg flex flex-col items-center gap-4">
-						<img src="/images/honeybloom-logo.png" alt="Honeybloom" class="h-16" />
+						<img src="/images/brand-logo.png" alt="Honeybloom" class="h-16" />
 						<div class="text-center">
 							<p class="text-small text-cream font-medium">On Magenta</p>
 							<p class="text-tech text-cream/50 text-xs">Hero overlay</p>
@@ -1359,7 +1171,7 @@
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
 					<!-- Badge display -->
 					<div class="p-8 bg-dark border border-cream/20 rounded-lg flex flex-col items-center gap-4">
-						<img src="/images/founders-club-badge.jpg" alt="Founders Club Badge" class="w-48 h-48 object-contain" />
+						<img src="/images/brand-founders-badge.jpg" alt="Founders Club Badge" class="w-48 h-48 object-contain" />
 						<div class="text-center">
 							<p class="text-small text-cream font-medium">Full Badge</p>
 							<p class="text-tech text-cream/50 text-xs">FC Hero, profile display</p>
@@ -1369,7 +1181,7 @@
 					<!-- Context preview -->
 					<div class="p-8 bg-dark border border-emerald/30 rounded-lg flex flex-col items-center gap-4">
 						<div class="flex items-center gap-4">
-							<img src="/images/founders-club-badge.jpg" alt="Founders Club Badge" class="w-12 h-12 object-contain" />
+							<img src="/images/brand-founders-badge.jpg" alt="Founders Club Badge" class="w-12 h-12 object-contain" />
 							<div>
 								<p class="text-subhead text-cream">Welcome, Founder</p>
 								<p class="text-small text-cream/50">Member since Jan 2026</p>
@@ -2252,279 +2064,206 @@
 			</div>
 		</section>
 
-	</div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     STAGE — Full Hero Recreation for Scroll Reveal Experiments
-     ═══════════════════════════════════════════════════════════════ -->
-<div class="relative border-t-4 border-magenta" bind:this={stageElement}>
-	<!-- Stage Nav -->
-	<nav class="absolute top-0 left-0 right-0 z-50 py-4 px-6 bg-dark/80 backdrop-blur-sm">
-		<div class="max-w-7xl mx-auto flex justify-between items-center">
-			<a href="/">
-				<img src="/images/honeybloom-logo.png" alt="Honeybloom" class="h-12" />
-			</a>
-			<span class="text-tech text-magenta">STAGE</span>
-		</div>
-	</nav>
-
-	<!-- Stage Hero — Full Viewport -->
-	<section
-		class="h-screen bg-dark flex flex-col justify-center items-center px-8 relative"
-		bind:this={heroSection}
-	>
-		<!-- Magenta guide lines: left and right thirds only (middle clear for phone) -->
-		<div class="absolute bottom-0 left-0 w-1/3 h-1 bg-magenta"></div>
-		<div class="absolute bottom-0 right-0 w-1/3 h-1 bg-magenta"></div>
-		<div class="max-w-4xl text-center space-y-6">
-			<h1 class="text-hero text-cream">Finally, someone who remembers.</h1>
-			<p class="text-subhead text-cream/70 max-w-2xl mx-auto leading-relaxed">
-				An AI companion who listens to you...<br/>
-				comes to know you...<br/>
-				and never leaves you.
-			</p>
-			<div class="pt-4">
-				<button class="relative px-8 py-4 text-lg bg-magenta text-cream font-satoshi font-medium rounded-lg overflow-hidden transition-all duration-300 hover:bg-magenta/90 hover:shadow-[0_0_30px_rgba(174,13,70,0.3)] group">
-					<span class="relative z-10">Pre-order now</span>
-					<div class="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:[animation-play-state:paused] group-hover:opacity-0 transition-opacity duration-300"></div>
-				</button>
+		<!-- ═══════════════════════════════════════════════════════════════
+		     PHOTOGRAPHY AESTHETICS
+		     Film looks and camera styles for Sophie images
+		     ═══════════════════════════════════════════════════════════════ -->
+		<section class="space-y-8">
+			<div class="border-b border-cream/20 pb-4">
+				<h2 class="text-display text-cream">Photography Aesthetics</h2>
+				<p class="text-small text-cream/50 mt-2">Film looks for Sophie images — captured, not rendered</p>
 			</div>
-		</div>
 
-		<!-- Scroll indicator (hide when pinned) -->
-		<div class="absolute bottom-40 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-cream/40 z-10 transition-opacity duration-300 {isPinned || pinnedScrollProgress > 0 ? 'opacity-0' : 'opacity-100'}">
-			<span class="text-small">Scroll to reveal the magic!</span>
-			<svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-			</svg>
-		</div>
+			<!-- Philosophy -->
+			<div class="space-y-4">
+				<p class="text-tech text-cream/70">THE PHILOSOPHY</p>
+				<div class="p-6 bg-magenta/[0.08] border border-magenta/30 rounded-lg">
+					<p class="text-body text-cream/70">
+						AI-generated images often look <span class="text-cream font-medium">too clean</span> — plasticky, hyper-processed, uncanny.
+						Film grain and analog imperfections signal <span class="text-magenta font-medium">"captured moment"</span> not "rendered image."
+						Sophie should feel <span class="text-cream font-medium">photographed</span>, not generated.
+					</p>
+				</div>
+			</div>
 
-		<!-- Phone: msg-0 + bubbles during chat, then anim-1 to anim-6 during tilt -->
-		<div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[82.5%]">
-			<div class="relative" style="width: 400px;">
+			<!-- Kodak Portra 400 — PRIMARY -->
+			<div class="space-y-4 border-t border-cream/10 pt-8">
+				<div class="flex items-center gap-3">
+					<p class="text-tech text-magenta">KODAK PORTRA 400</p>
+					<span class="px-2 py-0.5 text-xs bg-emerald/20 text-emerald rounded">PRIMARY</span>
+				</div>
+				<p class="text-small text-cream/50">The editorial fashion standard. Warm, creamy skin tones, organic grain.</p>
 
-				{#if currentFrame() === 0}
-					<!-- Bubble phase: msg-0 + HTML bubbles -->
-					<img
-						src="/images/msg-0.png"
-						alt="Sophie chat"
-						class="w-full"
-					/>
-
-					<!-- Chat bubbles overlay -->
-					{#if isPinned || pinnedScrollProgress > 0 || manualBubbles}
-						<div class="absolute inset-0 flex flex-col gap-6 px-[7%] pt-[42%] pb-[17%] overflow-hidden">
-							<!-- msg-1: Sophie's opener -->
-							<div
-								class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
-								style="opacity: {currentMsg() >= 1 ? 1 : 0}; transform: translateY({currentMsg() >= 1 ? '0' : '10px'});"
-							>
-								<p class="text-cream text-[15px] leading-relaxed">Hey – now that you got your promotion, are you finally getting that model airplane? You know you want it :)</p>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+					<div class="p-6 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-small text-cream font-medium mb-3">Characteristics</p>
+						<ul class="text-small text-cream/50 space-y-2">
+							<li><span class="text-cream">Film grain</span> — organic, fine, clustered (not digital noise)</li>
+							<li><span class="text-cream">Lifted blacks</span> — shadows fade to dark gray, not pure black</li>
+							<li><span class="text-cream">Muted saturation</span> — colors feel lived-in, not punchy</li>
+							<li><span class="text-cream">Soft contrast</span> — gentle roll-off in highlights/shadows</li>
+							<li><span class="text-cream">Warm midtones</span> — creamy, golden skin tones</li>
+						</ul>
+					</div>
+					<div class="p-6 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-small text-cream font-medium mb-3">How to Apply</p>
+						<div class="space-y-3">
+							<div>
+								<p class="text-small text-cream/70 mb-1">FLUX/PuLID Prompt:</p>
+								<p class="text-tech text-magenta text-xs">shot on Kodak Portra 400, 35mm film, natural light, soft film grain, editorial fashion</p>
 							</div>
-
-							<!-- msg-2: User's response -->
-							<div
-								class="self-end max-w-[80%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
-								style="opacity: {currentMsg() >= 2 ? 1 : 0}; transform: translateY({currentMsg() >= 2 ? '0' : '10px'});"
-							>
-								<p class="text-cream text-[15px] leading-relaxed">What, how do you remember that?! I must have told you that, what, a year ago?</p>
-							</div>
-
-							<!-- msg-3: Sophie's punchline -->
-							<div
-								class="self-start max-w-[85%] px-5 py-4 bg-[#4a1528] border border-[#6b2040] rounded-2xl rounded-tl-sm transition-all duration-300"
-								style="opacity: {currentMsg() >= 3 ? 1 : 0}; transform: translateY({currentMsg() >= 3 ? '0' : '10px'});"
-							>
-								<p class="text-cream text-[15px] leading-relaxed">Of course I do, silly. I told you! When you talk, I actually listen.</p>
-							</div>
-
-							<!-- msg-4: User's reaction -->
-							<div
-								class="self-end max-w-[75%] px-5 py-4 bg-[#2a2a2a] border border-[#3a3a3a] rounded-2xl rounded-tr-sm transition-all duration-300"
-								style="opacity: {currentMsg() >= 4 ? 1 : 0}; transform: translateY({currentMsg() >= 4 ? '0' : '10px'});"
-							>
-								<p class="text-cream text-[15px] leading-relaxed">You're the best, you know that? 😘</p>
+							<div>
+								<p class="text-small text-cream/70 mb-1">Post-Processing:</p>
+								<ul class="text-small text-cream/50 space-y-1">
+									<li>• Add film grain overlay (not noise)</li>
+									<li>• Lift blacks in tone curve</li>
+									<li>• Desaturate 10-15%</li>
+									<li>• Add warmth to midtones</li>
+									<li>• Reduce clarity slightly</li>
+								</ul>
 							</div>
 						</div>
-					{/if}
-				{:else}
-					<!-- Tilt phase: simple frame swap (no crossfade due to transparency) -->
-					<img
-						src="/images/anim-{currentFrame()}.png"
-						alt="Sophie chat - tilted"
-						class="w-full"
-					/>
-				{/if}
+					</div>
+				</div>
 
+				<div class="p-4 bg-emerald/[0.08] border border-emerald/30 rounded-lg mt-4">
+					<p class="text-small text-emerald"><span class="font-medium">Best for:</span> Intimate moments, conversation scenes, "girlfriend material" vibes. The Dior look.</p>
+				</div>
 			</div>
-		</div>
 
-	</section>
+			<!-- Other Film Stocks to Explore -->
+			<div class="space-y-4 border-t border-cream/10 pt-8">
+				<p class="text-tech text-cream/70">OTHER FILM STOCKS TO EXPLORE</p>
+				<p class="text-small text-cream/50">Boss to research — web search each to see actual examples.</p>
 
-	<!-- Below the fold -->
-	<section class="min-h-screen bg-dark px-8 py-16">
-	</section>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
 
-	<!-- ═══════════════════════════════════════════════════════════════════════════════
-	     HERO ANIMATION SPEC (Documentation Only)
-	     Scroll-driven phone reveal + Artisan Cut block
-	     Date: January 26, 2026
-	     ═══════════════════════════════════════════════════════════════════════════════
+					<!-- Cinestill 800T -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Cinestill 800T</p>
+						<p class="text-small text-cream/50 mb-3">Tungsten-balanced cinema film. Moody, cinematic.</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Cyan/teal shadows</li>
+							<li>• Halation (glow around highlights)</li>
+							<li>• Night photography look</li>
+							<li>• Very cinematic, dreamlike</li>
+						</ul>
+						<p class="text-tech text-magenta text-xs mt-3">Evening scenes, moody moments</p>
+					</div>
 
-	     THE FULL ANIMATION SEQUENCE
-	     ═══════════════════════════
+					<!-- Fuji Pro 400H -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Fuji Pro 400H</p>
+						<p class="text-small text-cream/50 mb-3">Discontinued legend. Soft, pastel, dreamlike.</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Cooler tones than Portra</li>
+							<li>• Pastel-like rendering</li>
+							<li>• Soft greens and blues</li>
+							<li>• Very flattering skin tones</li>
+						</ul>
+						<p class="text-tech text-magenta text-xs mt-3">Dreamy, soft, romantic</p>
+					</div>
 
-	     Phase 1: HERO ENTRY
-	     - Visitor starts at hero block
-	     - Hero headline + subhead visible
-	     - Phone is positioned below fold (peeking)
+					<!-- Kodak Gold 200 -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Kodak Gold 200</p>
+						<p class="text-small text-cream/50 mb-3">Consumer film. Warm, nostalgic, summer.</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Golden/amber warmth</li>
+							<li>• More saturated than Portra</li>
+							<li>• Nostalgic "vacation photos"</li>
+							<li>• Visible but pleasant grain</li>
+						</ul>
+						<p class="text-tech text-magenta text-xs mt-3">Casual moments, sunny scenes</p>
+					</div>
 
-	     Phase 2: SCROLL → CHAT BUBBLES APPEAR
-	     - As user scrolls, chat bubbles fade/slide in sequentially
-	     - Each message appears with staggered timing
-	     - Creates sense of conversation unfolding
+					<!-- Kodak Ektar 100 -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Kodak Ektar 100</p>
+						<p class="text-small text-cream/50 mb-3">Fine grain, vivid colors. More "commercial."</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Very fine grain</li>
+							<li>• Punchy, saturated colors</li>
+							<li>• High contrast</li>
+							<li>• Cleaner, more "perfect"</li>
+						</ul>
+						<p class="text-tech text-cream/40 text-xs mt-3">Maybe too clean for Sophie?</p>
+					</div>
 
-	     Phase 3: SCROLL → FULL PHONE REVEALED
-	     - Phone rises fully into view
-	     - Still front-facing at this point
+					<!-- Disposable Camera -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Disposable Camera</p>
+						<p class="text-small text-cream/50 mb-3">Harsh flash, amateur, very raw.</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Direct flash (harsh)</li>
+							<li>• Red-eye possible</li>
+							<li>• Color shifts, imperfect</li>
+							<li>• Deliberately amateur</li>
+						</ul>
+						<p class="text-tech text-magenta text-xs mt-3">Polaroid row? Casual selfies?</p>
+					</div>
 
-	     Phase 4: PHONE TILTS TO 3D ANGLE
-	     - Phone rotates to dramatic 3D tilt (the Morflax angle)
-	     - Titanium edge becomes visible
-	     - Transition: CSS transform OR crossfade between two Morflax PNGs
+					<!-- Polaroid -->
+					<div class="p-5 bg-cream/[0.03] border border-cream/10 rounded-lg">
+						<p class="text-body text-cream font-medium mb-2">Polaroid / Instax</p>
+						<p class="text-small text-cream/50 mb-3">Instant film. Faded, soft, nostalgic.</p>
+						<ul class="text-small text-cream/40 space-y-1">
+							<li>• Soft, faded colors</li>
+							<li>• Slight vignette</li>
+							<li>• Creamy whites</li>
+							<li>• Physical, tangible feel</li>
+						</ul>
+						<p class="text-tech text-magenta text-xs mt-3">The polaroid row block!</p>
+					</div>
 
-	     Phase 5: ARTISAN CUT REVEAL
-	     - Behind/beneath tilted phone, three glowing strata appear
-	     - Copy fades in below
-	     - This is the "under-the-hood magic" moment
+				</div>
+			</div>
 
-	     ═══════════════════════════════════════════════════════════════════════════════
+			<!-- Quick Reference -->
+			<div class="space-y-4 border-t border-cream/10 pt-8">
+				<p class="text-tech text-cream/70">QUICK REFERENCE — When to Use What</p>
 
-	     ARTISAN CUT VISUAL CONCEPT
-	     ══════════════════════════
+				<div class="overflow-x-auto">
+					<table class="w-full text-left">
+						<thead>
+							<tr class="border-b border-cream/20">
+								<th class="text-small text-cream/50 pb-2 pr-8">Mood / Scene</th>
+								<th class="text-small text-cream/50 pb-2 pr-8">Film Stock</th>
+								<th class="text-small text-cream/50 pb-2">Why</th>
+							</tr>
+						</thead>
+						<tbody class="text-small">
+							<tr class="border-b border-cream/10">
+								<td class="text-cream py-2 pr-8">Default / Editorial</td>
+								<td class="text-tech text-magenta py-2 pr-8">Portra 400</td>
+								<td class="text-cream/50 py-2">Warm, flattering, professional</td>
+							</tr>
+							<tr class="border-b border-cream/10">
+								<td class="text-cream py-2 pr-8">Evening / Moody</td>
+								<td class="text-tech text-magenta py-2 pr-8">Cinestill 800T</td>
+								<td class="text-cream/50 py-2">Cyan shadows, halation glow</td>
+							</tr>
+							<tr class="border-b border-cream/10">
+								<td class="text-cream py-2 pr-8">Dreamy / Soft</td>
+								<td class="text-tech text-magenta py-2 pr-8">Fuji Pro 400H</td>
+								<td class="text-cream/50 py-2">Pastels, cooler, romantic</td>
+							</tr>
+							<tr class="border-b border-cream/10">
+								<td class="text-cream py-2 pr-8">Casual / Nostalgic</td>
+								<td class="text-tech text-magenta py-2 pr-8">Kodak Gold 200</td>
+								<td class="text-cream/50 py-2">Summer vibes, golden warmth</td>
+							</tr>
+							<tr>
+								<td class="text-cream py-2 pr-8">Polaroid Row</td>
+								<td class="text-tech text-magenta py-2 pr-8">Polaroid / Instax</td>
+								<td class="text-cream/50 py-2">Physical, instant, authentic</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
 
-	     "Under-the-hood magic" visualization:
+		</section>
 
-	     Phone floats forward (3D tilt). Behind and beneath it, three luminous
-	     horizontal strata — like geological layers or reactor core glow.
-	     Subtle, not diagrams. The feeling: something is processing beneath the surface.
-
-	     Visual language: STRATA GLOW (chosen)
-	     - Three soft horizontal bands of light beneath phone
-	     - Each a different magenta intensity
-	     - Suggests depth without explanation
-	     - Protects the "how", reveals the "what"
-
-	     Alternative concepts (not chosen):
-	     - Data filaments: Thin lines streaming from conversation down into darkness
-	     - Pulse rings: Concentric rings emanating downward like sonar
-
-	     ═══════════════════════════════════════════════════════════════════════════════
-
-	     ARTISAN CUT COPY
-	     ════════════════
-
-	     Headline (Satoshi Bold, spaced):
-	       A R T I S A N   C U T ™
-
-	     Subhead (Satoshi Medium, cream/70):
-	       Memory that actually means something.
-
-	     Three lines (one per memory layer, but layers not named):
-	       She remembers what you said.      ← (Journal)
-	       She remembers how you felt.       ← (Echoes)
-	       She remembers who you're becoming. ← (Arcs)
-
-	     Technical claim (JetBrains Mono, magenta/50):
-	       The only real memory architecture in modern AI conversation.
-
-	     Optional kicker (emotional close):
-	       Month 6 Sophie doesn't just know your birthday.
-	       She knows you go quiet when you're hurt.
-
-	     ═══════════════════════════════════════════════════════════════════════════════
-
-	     ARTISAN CUT BLOCK LAYOUT
-	     ════════════════════════
-
-	     ┌─────────────────────────────────────────────────┐
-	     │                                                 │
-	     │          A R T I S A N   C U T ™                │  ← Satoshi Bold, spaced
-	     │                                                 │
-	     │     Memory that actually means something.       │  ← Satoshi Medium, cream/70
-	     │                                                 │
-	     │  ┌───────────────────────────────────────────┐  │
-	     │  │                                           │  │
-	     │  │        [ PHONE WITH CHAT ]                │  │  ← Morflax PNG, tilted
-	     │  │         (3D tilt effect)                  │  │
-	     │  │                                           │  │
-	     │  │  ═════════════════════════════════════    │  │  ← Stratum 1 glow (brightest)
-	     │  │  ═══════════════════════════════         │  │  ← Stratum 2 glow (medium)
-	     │  │  ════════════════════════               │  │  ← Stratum 3 glow (faintest)
-	     │  │                                           │  │
-	     │  └───────────────────────────────────────────┘  │
-	     │                                                 │
-	     │     She remembers what you said.                │
-	     │     She remembers how you felt.                 │
-	     │     She remembers who you're becoming.          │
-	     │                                                 │
-	     │  ┌─────────────────────────────────────────────┐│
-	     │  │ The only real memory architecture in        ││  ← JetBrains Mono, magenta/50
-	     │  │ modern AI conversation.                     ││
-	     │  └─────────────────────────────────────────────┘│
-	     │                                                 │
-	     └─────────────────────────────────────────────────┘
-
-	     ═══════════════════════════════════════════════════════════════════════════════
-
-	     IMPLEMENTATION BREAKDOWN
-	     ════════════════════════
-
-	     | Element                      | Tool/Method                              |
-	     |------------------------------|------------------------------------------|
-	     | Tilted phone render          | Morflax PNG export (transparent bg)      |
-	     | Front-facing phone render    | Morflax PNG export (transparent bg)      |
-	     | Chat bubbles on scroll       | CSS animations + Intersection Observer   |
-	     | Phone tilt transition        | CSS transform OR two-PNG crossfade       |
-	     | Three-layer strata glow      | CSS gradients + box-shadows              |
-	     | Copy reveal                  | CSS fade-in on scroll                    |
-	     | Scroll choreography          | JavaScript scroll position tracking      |
-
-	     MORFLAX EXPORTS NEEDED:
-	     1. Front-facing phone PNG (2K, transparent bg) — for initial state
-	     2. Tilted phone PNG (2K, transparent bg) — for final reveal state
-	     3. Optional: Zoom Out Rotation video (MP4) — if we want pre-baked animation
-
-	     DECISION POINT:
-	     - Option A: Full scroll-driven animation (more work, more impact)
-	     - Option B: Just use Morflax static/video exports (faster, still looks great)
-
-	     Boss to decide based on time/energy.
-
-	     ═══════════════════════════════════════════════════════════════════════════════
-
-	     WHY THIS WORKS (Strategic)
-	     ══════════════════════════
-
-	     1. Reveals what, protects how
-	        Three lines describe outcomes (facts, feelings, patterns) without
-	        exposing Journal/Echoes/Arcs. Competitors can't reverse-engineer it.
-
-	     2. Technical credibility without jargon
-	        JetBrains Mono treatment + "architecture" signals sophistication.
-	        Glow strata suggest depth. Nothing requires explanation.
-
-	     3. Emotional close
-	        "She knows you go quiet when you're hurt" — memory moat made tangible.
-	        It's not about data. It's about being known.
-
-	     4. Scannable
-	        Three lines. One claim. Zero paragraphs.
-	        Matches spec: "After the emotional demo, drive home: this is real."
-
-	     ═══════════════════════════════════════════════════════════════════════════════
-	     END HERO ANIMATION SPEC
-	     ═══════════════════════════════════════════════════════════════════════════════ -->
-
+	</div>
 </div>

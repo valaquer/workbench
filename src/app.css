@@ -1,18 +1,37 @@
 @import 'tailwindcss';
 
-/* Fonts: Satoshi (headlines) + Inter (body) + JetBrains Mono (technical) */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+/* ═══════════════════════════════════════════════════════════════
+   FONTS (D02)
+   ═══════════════════════════════════════════════════════════════
+
+   Geist Sans: Vercel's Swiss-inspired typeface, SIL OFL 1.1
+   Download from: https://vercel.com/font or npm install geist
+   Place files in: static/fonts/geist/
+
+   Until Geist is installed, system-ui fallback provides clean sans-serif.
+   ═══════════════════════════════════════════════════════════════ */
+
+@font-face {
+	font-family: 'Geist Sans';
+	src: url('/fonts/geist/GeistVF.woff2') format('woff2');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+/* Inter + JetBrains Mono from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
 
 /**
- * Honeybloom Design System — LOCKED Jan 25, 2026
+ * Honeybloom Design System — Updated Feb 27, 2026
+ * D01-D10 decisions applied (tentative, Boss taste-check pending)
  *
  * ═══════════════════════════════════════════════════════════════
- * COLORS (locked Jan 24)
+ * COLORS (D01, D07)
  * ═══════════════════════════════════════════════════════════════
  *
- *   "our black"          → bg-dark         #121212   Canvas
+ *   "our black"          → bg-dark         #0E0E0C   Canvas (warm dark)
  *   "our sophie magenta" → bg-magenta      #AE0D46   Sophie accent (Home)
  *   "our emerald"        → bg-emerald      #10B981   Business accent (FC/Pricing)
  *   "our text cream"     → text-cream      #F5F0E6   Text, light surfaces
@@ -20,38 +39,111 @@
  *   "our cream text"     → text-cream/70            Muted text
  *   "our soft emerald"   → bg-emerald/[0.08]        8% emerald surface
  *
+ * Text opacity scale (D07):
+ *   100% — Primary text
+ *   70%  — Secondary text
+ *   40%  — Tertiary text (floor, was 30%)
+ *
+ * Border opacity scale (D08):
+ *   8%   — Card containers (floor, was 10%)
+ *   20%  — Section dividers
+ *   30%  — Interactive elements, hover states
+ *   50%  — Ghost buttons, focal elements
+ *
  * ═══════════════════════════════════════════════════════════════
- * TYPOGRAPHY (locked Jan 25)
+ * TYPOGRAPHY (D02, D03, D04)
  * ═══════════════════════════════════════════════════════════════
  *
  * Scale: Perfect Fourth (1.333) · Base 18px
  *
  * Fonts:
- *   Satoshi        → Headlines (font-satoshi)
- *   Inter          → Body copy (font-inter)
+ *   Geist Sans     → Headlines (font-headline)
+ *   Inter          → Body copy (font-body)
  *   JetBrains Mono → Technical terms (font-mono)
  *
- * Sizes:
- *   text-hero     72px  Satoshi Bold     H1 hero headlines
- *   text-display  48px  Satoshi Medium   H2, section titles
- *   text-heading  32px  Satoshi Medium   Block titles
- *   text-subhead  24px  Satoshi Medium   Subheadings
+ * Sizes + Weights (D03: hero 600, others 500):
+ *   text-hero     72px  Geist Semibold   H1 hero headlines
+ *   text-display  48px  Geist Medium     H2, section titles
+ *   text-heading  32px  Geist Medium     Block titles
+ *   text-subhead  24px  Geist Medium     Subheadings
  *   text-body     18px  Inter Regular    Body paragraphs
  *   text-small    14px  Inter Regular    Captions, labels
- *   text-tech     16px  JetBrains Mono   Technical terms (Artisan Cut™, GDPR)
+ *   text-tech     16px  JetBrains Mono   Technical terms
+ *
+ * Letter-spacing (D04):
+ *   --ls-display  -0.03em   40px+ headlines
+ *   --ls-heading  -0.02em   24-40px headings
+ *   --ls-subhead  -0.01em   18-24px subheads
+ *   --ls-body      0em      body text
+ *   --ls-small     0.01em   small text
+ *   --ls-label     0.02em   UI labels
+ *   --ls-caps      0.08em   ALL-CAPS (always)
  *
  * Line Heights:
  *   Headlines: 1.1 - 1.2 (tight)
  *   Body: 1.5 - 1.6 (readable)
  *
  * ═══════════════════════════════════════════════════════════════
+ * BORDER RADIUS (D05)
+ * ═══════════════════════════════════════════════════════════════
+ *
+ *   --radius-button   8px    Buttons
+ *   --radius-card     12px   Cards, containers
+ *   --radius-image    8px    Images (was 16px)
+ *   --radius-avatar   50%    Avatars (round)
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * MOTION (D06)
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Asymmetric timing (exit = enter x 0.8):
+ *   Button hover:  150-200ms
+ *   Card hover:    220ms in / 180ms out
+ *   Modal:         300ms in / 240ms out
+ *
+ * Only animate transform + opacity. Never transition: all.
+ *
+ * ═══════════════════════════════════════════════════════════════
  */
 
 @theme {
-	--color-dark: #121212;      /* "our black" — canvas */
+	/* Colors (D01) */
+	--color-dark: #0E0E0C;      /* "our black" — warm dark canvas */
 	--color-magenta: #AE0D46;   /* "our sophie magenta" — Sophie accent */
 	--color-emerald: #10B981;   /* "our emerald" — business accent */
 	--color-cream: #F5F0E6;     /* "our text cream" — text/surfaces */
+
+	/* Letter-spacing (D04) */
+	--ls-display: -0.03em;
+	--ls-heading: -0.02em;
+	--ls-subhead: -0.01em;
+	--ls-body: 0em;
+	--ls-small: 0.01em;
+	--ls-label: 0.02em;
+	--ls-caps: 0.08em;
+
+	/* Border radius (D05) */
+	--radius-button: 8px;
+	--radius-card: 12px;
+	--radius-image: 8px;
+
+	/* Motion timing (D06) */
+	--duration-fast: 150ms;
+	--duration-base: 200ms;
+	--duration-card-in: 220ms;
+	--duration-card-out: 180ms;
+	--duration-modal-in: 300ms;
+	--duration-modal-out: 240ms;
+
+	/* Easing (D06) */
+	--ease-out: cubic-bezier(0.33, 1, 0.68, 1);           /* power2.out equivalent */
+	--ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);  /* spring overshoot */
+}
+
+html {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
 }
 
 html, body {
@@ -61,24 +153,36 @@ html, body {
 	min-height: 100vh;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   FONT FAMILIES
-   ═══════════════════════════════════════════════════════════════ */
-
-.font-satoshi {
-	font-family: 'Satoshi', sans-serif;
+/* Body text max-width for readability */
+.prose, .text-body-prose {
+	max-width: 65ch;
 }
 
-.font-inter {
-	font-family: 'Inter', sans-serif;
+/* ═══════════════════════════════════════════════════════════════
+   FONT FAMILIES (D02)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Geist Sans: loaded via next/font or manual hosting
+   Fallback stack for when Geist isn't available yet */
+.font-headline {
+	font-family: 'Geist Sans', 'Geist', system-ui, -apple-system, sans-serif;
+}
+
+.font-body {
+	font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .font-mono {
-	font-family: 'JetBrains Mono', monospace;
+	font-family: 'JetBrains Mono', ui-monospace, monospace;
 }
+
+/* Legacy aliases for migration */
+.font-satoshi { font-family: 'Geist Sans', 'Geist', system-ui, sans-serif; }
+.font-inter { font-family: 'Inter', system-ui, sans-serif; }
 
 /* ═══════════════════════════════════════════════════════════════
    TYPE SCALE — Perfect Fourth (1.333) · Base 18px · Fluid
+   D02 (Geist Sans), D03 (weights), D04 (letter-spacing)
    ═══════════════════════════════════════════════════════════════
 
    Using clamp(min, preferred, max) for fluid scaling:
@@ -88,60 +192,75 @@ html, body {
 
    ═══════════════════════════════════════════════════════════════ */
 
-/* Hero: 40px → 72px Satoshi Bold — H1 hero headlines */
+/* Hero: 40px → 72px Geist Semibold — H1 hero headlines (D03: 700→600) */
 .text-hero {
-	font-family: 'Satoshi', sans-serif;
+	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
 	font-size: clamp(2.5rem, 4vw + 1.5rem, 4.5rem);
-	font-weight: 700;
+	font-weight: 600;
 	line-height: 1.1;
+	letter-spacing: var(--ls-display);
 }
 
-/* Display: 32px → 48px Satoshi Medium — H2, section titles */
+/* Display: 32px → 48px Geist Medium — H2, section titles */
 .text-display {
-	font-family: 'Satoshi', sans-serif;
+	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
 	font-size: clamp(2rem, 3vw + 1rem, 3rem);
 	font-weight: 500;
 	line-height: 1.15;
+	letter-spacing: var(--ls-display);
 }
 
-/* Heading: 24px → 32px Satoshi Medium — Block titles */
+/* Heading: 24px → 32px Geist Medium — Block titles */
 .text-heading {
-	font-family: 'Satoshi', sans-serif;
+	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
 	font-size: clamp(1.5rem, 2vw + 0.75rem, 2rem);
 	font-weight: 500;
 	line-height: 1.2;
+	letter-spacing: var(--ls-heading);
 }
 
-/* Subhead: 20px → 24px Satoshi Medium — Subheadings */
+/* Subhead: 20px → 24px Geist Medium — Subheadings */
 .text-subhead {
-	font-family: 'Satoshi', sans-serif;
+	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
 	font-size: clamp(1.25rem, 1.5vw + 0.75rem, 1.5rem);
 	font-weight: 500;
 	line-height: 1.3;
+	letter-spacing: var(--ls-subhead);
 }
 
 /* Body: 16px → 18px Inter Regular — Body paragraphs */
 .text-body {
-	font-family: 'Inter', sans-serif;
+	font-family: 'Inter', system-ui, sans-serif;
 	font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
 	font-weight: 400;
 	line-height: 1.6;
+	letter-spacing: var(--ls-body);
 }
 
 /* Small: 14px Inter Regular — Captions, labels (fixed) */
 .text-small {
-	font-family: 'Inter', sans-serif;
+	font-family: 'Inter', system-ui, sans-serif;
 	font-size: 0.875rem;
 	font-weight: 400;
 	line-height: 1.5;
+	letter-spacing: var(--ls-small);
 }
 
 /* Tech: 14px → 16px JetBrains Mono — Technical terms */
 .text-tech {
-	font-family: 'JetBrains Mono', monospace;
+	font-family: 'JetBrains Mono', ui-monospace, monospace;
 	font-size: clamp(0.875rem, 0.5vw + 0.75rem, 1rem);
 	font-weight: 400;
 	line-height: 1.5;
+	letter-spacing: var(--ls-label);
+}
+
+/* All-caps utility — always use with tracking (D04) */
+.text-caps {
+	text-transform: uppercase;
+	letter-spacing: var(--ls-caps);
+	font-size: 0.75rem;
+	font-weight: 500;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -154,6 +273,15 @@ html, body {
 	}
 	100% {
 		transform: translateX(100%);
+	}
+}
+
+@keyframes float {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-4px);
 	}
 }
 
@@ -353,3 +481,103 @@ html, body {
    but the content order and emphasis should still create rhythm.
 
    ═══════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTION (D06) — Never use transition: all
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Base transitions — explicit properties only */
+.transition-base {
+	transition-property: opacity, transform;
+	transition-duration: var(--duration-base);
+	transition-timing-function: var(--ease-out);
+}
+
+.transition-fast {
+	transition-property: opacity, transform;
+	transition-duration: var(--duration-fast);
+	transition-timing-function: var(--ease-out);
+}
+
+/* Card hover — asymmetric timing */
+.transition-card {
+	transition-property: opacity, transform;
+	transition-duration: var(--duration-card-in);
+	transition-timing-function: var(--ease-out-back);
+}
+.transition-card:not(:hover) {
+	transition-duration: var(--duration-card-out);
+	transition-timing-function: var(--ease-out);
+}
+
+/* Color transitions (for backgrounds, borders) */
+.transition-colors {
+	transition-property: background-color, border-color, color;
+	transition-duration: var(--duration-fast);
+	transition-timing-function: var(--ease-out);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REDUCED MOTION — Accessibility
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SURFACES (D08, D09)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 8-30 box pattern: 8% fill + 30% border */
+.surface-sophie {
+	background-color: rgb(174 13 70 / 0.08);
+	border: 1px solid rgb(174 13 70 / 0.30);
+}
+
+.surface-emerald {
+	background-color: rgb(16 185 129 / 0.08);
+	border: 1px solid rgb(16 185 129 / 0.30);
+}
+
+/* Neutral surfaces */
+.surface-neutral {
+	background-color: rgb(245 240 230 / 0.03);
+}
+
+.surface-elevated {
+	background-color: rgb(245 240 230 / 0.05);
+}
+
+/* Card container border (D08: floor lowered to 8%) */
+.border-card {
+	border: 1px solid rgb(245 240 230 / 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NOISE/GRAIN OVERLAY (D10) — Gradient surfaces only
+   ═══════════════════════════════════════════════════════════════
+   Apply .with-grain to hero sections and feature cards with gradients.
+   2-5% opacity, mix-blend-mode overlay.
+   ═══════════════════════════════════════════════════════════════ */
+
+.with-grain {
+	position: relative;
+	isolation: isolate;
+}
+
+.with-grain::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.03;
+	mix-blend-mode: overlay;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}

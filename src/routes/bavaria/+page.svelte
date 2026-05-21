@@ -1,7 +1,34 @@
 <script lang="ts">
+	import type { AssetMeta } from './+page.server';
+
 	let { data } = $props();
-	let ids = $state(data.ids.slice());
+	let allIds = data.ids;
 	let votes: Record<string, string> = $state({ ...data.votes });
+	let meta: Record<string, AssetMeta> = data.meta ?? {};
+
+	// Filters
+	let filterCharacter = $state('');
+	let filterUseCase = $state('');
+
+	let characters = $derived([...new Set(
+		Object.entries(meta)
+			.filter(([, m]) => m.characterName)
+			.map(([, m]) => m.characterName!)
+	)].sort());
+
+	let useCases = $derived([...new Set(
+		Object.entries(meta)
+			.filter(([, m]) => m.useCase)
+			.map(([, m]) => m.useCase!)
+	)].sort());
+
+	let ids = $derived(allIds.filter(id => {
+		const m = meta[id];
+		if (!m) return true;
+		if (filterCharacter && m.characterName !== filterCharacter) return false;
+		if (filterUseCase && m.useCase !== filterUseCase) return false;
+		return true;
+	}));
 
 	// Lightbox
 	let lightboxId: string | null = $state(null);
@@ -90,8 +117,9 @@
 {/snippet}
 
 {#snippet imageCard(id: string)}
+	{@const m = meta[id]}
 	<div
-		class="group relative overflow-hidden rounded-lg cursor-grab active:cursor-grabbing transition-opacity
+		class="group rounded-lg cursor-grab active:cursor-grabbing transition-opacity
 		       {dragId === id ? 'opacity-30' : ''}"
 		style="width: 220px;"
 		draggable="true"
@@ -105,19 +133,18 @@
 		<img
 			src="/api/bavaria/{id}"
 			alt={id}
-			class="w-full pointer-events-none"
+			class="w-full rounded-lg pointer-events-none"
 			loading="lazy"
 		/>
-		<div class="absolute bottom-1 right-1 flex gap-1">
-			{@render voteButtons(id, 'sm')}
-		</div>
-		<div
-			class="absolute inset-x-0 bottom-0 flex items-end justify-center pb-1
-			       bg-gradient-to-t from-black/60 to-transparent h-8 pointer-events-none"
-		>
-			<span class="font-mono text-[10px] tracking-wider text-cream/90 font-medium">
-				{id}
-			</span>
+		<div class="flex items-center gap-2 mt-1.5">
+			<span class="font-mono text-xs tracking-wider text-[#7a5e4a] font-medium">{id}</span>
+			{#if m}
+				<span class="bg-dark text-cream/70 text-[9px] px-1.5 py-0.5 rounded font-mono border border-cream/10">{m.characterName}</span>
+				<span class="bg-dark text-cream/50 text-[9px] px-1.5 py-0.5 rounded font-mono border border-cream/10">{m.useCase}</span>
+			{/if}
+			<div class="flex gap-0.5 ml-auto">
+				{@render voteButtons(id, 'sm')}
+			</div>
 		</div>
 	</div>
 {/snippet}
@@ -129,7 +156,29 @@
 	<div class="max-w-7xl mx-auto">
 		<h1 class="font-satoshi text-xl text-cream">Bavaria -- Production Assets</h1>
 		<p class="text-cream/50 text-sm mt-1">Drag to compare. Click to zoom. Arrow keys to navigate.</p>
-		<p class="text-cream/50 text-sm">{ids.length} assets. {Object.values(votes).filter(v => v === 'approved').length} approved. {Object.values(votes).filter(v => v === 'rejected').length} rejected.</p>
+		{#if characters.length > 0 || useCases.length > 0}
+			<div class="flex gap-4 mt-3">
+				<select
+					class="bg-dark text-cream/80 text-xs px-2 py-1 rounded border border-cream/10 font-mono"
+					bind:value={filterCharacter}
+				>
+					<option value="">All characters</option>
+					{#each characters as c}
+						<option value={c}>{c}</option>
+					{/each}
+				</select>
+				<select
+					class="bg-dark text-cream/80 text-xs px-2 py-1 rounded border border-cream/10 font-mono"
+					bind:value={filterUseCase}
+				>
+					<option value="">All use cases</option>
+					{#each useCases as uc}
+						<option value={uc}>{uc}</option>
+					{/each}
+				</select>
+			</div>
+		{/if}
+		<p class="text-cream/50 text-sm mt-2">{ids.length} assets. {Object.values(votes).filter(v => v === 'approved').length} approved. {Object.values(votes).filter(v => v === 'rejected').length} rejected.</p>
 	</div>
 </nav>
 
@@ -138,7 +187,7 @@
 	<div class="max-w-7xl mx-auto">
 		{#if ids.length === 0}
 			<div class="flex items-center justify-center h-64">
-				<p class="text-cream/40 text-lg">No assets in Bavaria folder yet.</p>
+				<p class="text-cream/40 text-lg">{allIds.length === 0 ? 'No assets in Bavaria folder yet.' : 'No assets match the selected filters.'}</p>
 			</div>
 		{:else}
 			<div class="flex flex-wrap gap-4 mt-6">

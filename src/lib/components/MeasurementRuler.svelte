@@ -14,6 +14,18 @@
 		locked: boolean;
 	}
 
+	// ═══════════════════════════════════════════════════════════════
+	// DEFAULT RULERS — Hardcoded landmarks
+	// To update: "Red, lock Xpx" or copy from UI
+	// ═══════════════════════════════════════════════════════════════
+	const DEFAULT_RULERS: Ruler[] = [
+		{ id: 'r-730', y: 730, locked: true },
+		{ id: 'r-963', y: 963, locked: true },
+		{ id: 'r-1635', y: 1635, locked: true },
+		{ id: 'r-1664', y: 1664, locked: true },
+		{ id: 'r-2544', y: 2544, locked: true },
+	];
+
 	// State
 	let rulers: Ruler[] = $state([]);
 	let isOpen = $state(true);
@@ -35,20 +47,23 @@
 		}
 	});
 
-	// Load from localStorage on mount
+	// Load from localStorage on mount, fallback to defaults
 	$effect(() => {
 		if (typeof window !== 'undefined') {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored) {
 				try {
 					const parsed = JSON.parse(stored);
-					if (Array.isArray(parsed)) {
+					if (Array.isArray(parsed) && parsed.length > 0) {
 						rulers = parsed;
+						return;
 					}
 				} catch (e) {
 					console.warn('Failed to parse ruler data:', e);
 				}
 			}
+			// No stored data or empty — use defaults
+			rulers = [...DEFAULT_RULERS];
 		}
 	});
 
@@ -124,6 +139,18 @@
 		selectedRulerIds = [];
 	}
 
+	// Copy ruler position to clipboard
+	let copiedId: string | null = $state(null);
+	async function copyPosition(ruler: Ruler) {
+		try {
+			await navigator.clipboard.writeText(`${Math.round(ruler.y)}px`);
+			copiedId = ruler.id;
+			setTimeout(() => copiedId = null, 1500);
+		} catch (e) {
+			console.error('Failed to copy:', e);
+		}
+	}
+
 	// Drag handlers
 	function startDrag(e: MouseEvent, ruler: Ruler) {
 		if (ruler.locked) return;
@@ -169,7 +196,7 @@
 			<span class="text-cream/70">Rulers ({rulers.length})</span>
 			<div class="flex gap-1">
 				<button
-					class="px-2 py-1 bg-magenta/20 text-magenta rounded hover:bg-magenta/30 transition-colors"
+					class="px-2 py-1 bg-cream/10 text-cream/50 rounded hover:bg-cream/20 hover:text-cream/70 transition-colors"
 					onclick={addRuler}
 				>
 					+ Add
@@ -271,6 +298,17 @@
 						</button>
 					{/each}
 				</div>
+
+				<!-- Copy button (only on locked rulers) -->
+				{#if ruler.locked}
+					<button
+						class="px-1.5 py-0.5 text-[9px] bg-emerald/20 border border-emerald/40 text-emerald rounded hover:bg-emerald/30 transition-colors"
+						onclick={(e) => { e.stopPropagation(); copyPosition(ruler); }}
+						title="Copy position"
+					>
+						{copiedId === ruler.id ? '✓' : '📋'}
+					</button>
+				{/if}
 			</div>
 
 			<!-- Left edge marker -->
