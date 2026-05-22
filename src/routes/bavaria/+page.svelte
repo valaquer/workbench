@@ -9,6 +9,13 @@
 	// Filters
 	let filterCharacter = $state('');
 	let filterUseCase = $state('');
+	let filterVote = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-vote') ?? 'all') : 'all');
+
+	$effect(() => {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem('bavaria-filter-vote', filterVote);
+		}
+	});
 
 	let characters = $derived([...new Set(
 		Object.entries(meta)
@@ -27,6 +34,7 @@
 		if (!m) return true;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
 		if (filterUseCase && m.useCase !== filterUseCase) return false;
+		if (filterVote === 'approved' && votes[id] === 'rejected') return false;
 		return true;
 	}));
 
@@ -156,6 +164,18 @@
 	<div class="max-w-7xl mx-auto">
 		<h1 class="font-satoshi text-xl text-cream">Bavaria -- Production Assets</h1>
 		<p class="text-cream/50 text-sm mt-1">Drag to compare. Click to zoom. Arrow keys to navigate.</p>
+		<div class="flex gap-2 mt-3">
+				<button
+					class="text-xs px-3 py-1 rounded font-mono transition-colors
+					       {filterVote === 'all' ? 'bg-cream/20 text-cream border border-cream/30' : 'bg-dark text-cream/50 border border-cream/10 hover:text-cream/70'}"
+					onclick={() => filterVote = 'all'}
+				>All</button>
+				<button
+					class="text-xs px-3 py-1 rounded font-mono transition-colors
+					       {filterVote === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-dark text-cream/50 border border-cream/10 hover:text-cream/70'}"
+					onclick={() => filterVote = 'approved'}
+				>Approved</button>
+			</div>
 		{#if characters.length > 0 || useCases.length > 0}
 			<div class="flex gap-4 mt-3">
 				<select
