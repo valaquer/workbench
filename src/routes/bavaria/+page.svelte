@@ -8,6 +8,7 @@
 	let votes: Record<string, string> = $state({ ...data.votes });
 	$effect(() => { votes = { ...data.votes }; });
 	let meta: Record<string, AssetMeta> = $derived(data.meta ?? {});
+	let comments: Record<string, string> = $derived(data.comments ?? {});
 
 	// Realtime asset detection via SSE (REQ-005)
 	let eventSource: EventSource | null = null;
@@ -172,6 +173,9 @@
 				{@render voteButtons(id, 'sm')}
 			</div>
 		</div>
+		{#if comments[id]}
+			<p class="text-cream/40 text-[9px] mt-1 font-mono leading-tight truncate">{comments[id]}</p>
+		{/if}
 	</div>
 {/snippet}
 

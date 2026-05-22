@@ -148,11 +148,11 @@ export async function load() {
 	const manifest = await loadManifest();
 
 	const votes: Record<string, string> = {};
+	const comments: Record<string, string> = {};
 	for (const id of ids) {
 		const entry = manifest.assets[id];
-		if (entry?.vote) {
-			votes[id] = entry.vote;
-		}
+		if (entry?.vote) votes[id] = entry.vote;
+		if (entry?.comment) comments[id] = entry.comment;
 	}
 
 	const [csvAssets, identities, physiques, useCases] = await Promise.all([
@@ -184,5 +184,5 @@ export async function load() {
 		};
 	}
 
-	return { ids, votes, meta };
+	return { ids, votes, meta, comments };
 }
