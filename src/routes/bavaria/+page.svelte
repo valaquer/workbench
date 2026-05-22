@@ -49,11 +49,11 @@
 	)].sort());
 
 	let ids = $derived(allIds.filter(id => {
+		if (filterVote === 'approved' && votes[id] === 'rejected') return false;
 		const m = meta[id];
 		if (!m) return true;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
 		if (filterUseCase && m.useCase !== filterUseCase) return false;
-		if (filterVote === 'approved' && votes[id] === 'rejected') return false;
 		return true;
 	}));
 
