@@ -1,10 +1,28 @@
 <script lang="ts">
 	import type { AssetMeta } from './+page.server';
+	import { invalidateAll } from '$app/navigation';
+	import { onDestroy } from 'svelte';
 
 	let { data } = $props();
-	let allIds = data.ids;
+	let allIds = $derived(data.ids);
 	let votes: Record<string, string> = $state({ ...data.votes });
-	let meta: Record<string, AssetMeta> = data.meta ?? {};
+	$effect(() => { votes = { ...data.votes }; });
+	let meta: Record<string, AssetMeta> = $derived(data.meta ?? {});
+
+	// Realtime asset detection via SSE (REQ-005)
+	let eventSource: EventSource | null = null;
+	if (typeof window !== 'undefined') {
+		eventSource = new EventSource('/api/bavaria/events');
+		eventSource.onmessage = (e) => {
+			const msg = JSON.parse(e.data);
+			if (msg.type === 'change') {
+				invalidateAll();
+			}
+		};
+	}
+	onDestroy(() => {
+		if (eventSource) eventSource.close();
+	});
 
 	// Filters
 	let filterCharacter = $state('');
