@@ -184,22 +184,17 @@
 <!-- Header -->
 <nav class="py-4 px-6 bg-dark">
 	<div class="max-w-7xl mx-auto">
-		<h1 class="font-satoshi text-xl text-cream">Bavaria -- Production Assets</h1>
-		<p class="text-cream/50 text-sm mt-1">Drag to compare. Click to zoom. Arrow keys to navigate.</p>
-		<div class="flex gap-2 mt-3">
-				<button
-					class="text-xs px-3 py-1 rounded font-mono transition-colors
-					       {filterVote === 'all' ? 'bg-cream/20 text-cream border border-cream/30' : 'bg-dark text-cream/50 border border-cream/10 hover:text-cream/70'}"
-					onclick={() => filterVote = 'all'}
-				>All</button>
-				<button
-					class="text-xs px-3 py-1 rounded font-mono transition-colors
-					       {filterVote === 'approved' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-dark text-cream/50 border border-cream/10 hover:text-cream/70'}"
-					onclick={() => filterVote = 'approved'}
-				>Approved</button>
-			</div>
-		{#if characters.length > 0 || useCases.length > 0}
-			<div class="flex gap-4 mt-3">
+		<h1 class="font-satoshi text-xl text-cream">Bavaria</h1>
+		<div class="flex items-center gap-4 mt-2">
+			<span class="text-cream/50 text-xs font-mono">All</span>
+			<button
+				class="relative w-8 h-[22px] rounded-full transition-colors border border-cream/10 {filterVote === 'approved' ? 'bg-cream/30' : 'bg-cream/10'}"
+				onclick={() => filterVote = filterVote === 'all' ? 'approved' : 'all'}
+			>
+				<span class="absolute top-[3px] left-[3px] w-[14px] h-[14px] rounded-full bg-cream/70 transition-transform {filterVote === 'approved' ? 'translate-x-[10px]' : ''}"></span>
+			</button>
+			<span class="text-cream/50 text-xs font-mono">Approved</span>
+			{#if characters.length > 0 || useCases.length > 0}
 				<select
 					class="bg-dark text-cream/80 text-xs px-2 py-1 rounded border border-cream/10 font-mono"
 					bind:value={filterCharacter}
@@ -218,9 +213,8 @@
 						<option value={uc}>{uc}</option>
 					{/each}
 				</select>
-			</div>
-		{/if}
-		<p class="text-cream/50 text-sm mt-2">{ids.length} assets. {Object.values(votes).filter(v => v === 'approved').length} approved. {Object.values(votes).filter(v => v === 'rejected').length} rejected.</p>
+			{/if}
+		</div>
 	</div>
 </nav>
 
