@@ -27,14 +27,23 @@
 
 	// Filters
 	let filterCharacter = $state('');
-	let filterUseCase = $state('');
-	let filterVote = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-vote') ?? 'all') : 'all');
+	let filterReview = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-review') ?? '') : '');
+	let filterDeployment = $state('');
 
 	$effect(() => {
 		if (typeof localStorage !== 'undefined') {
-			localStorage.setItem('bavaria-filter-vote', filterVote);
+			localStorage.setItem('bavaria-filter-review', filterReview);
 		}
 	});
+
+	function setFilterReview(v: string) {
+		if (filterReview === v) {
+			filterReview = '';
+		} else {
+			filterReview = v;
+			if (v !== 'accepted') filterDeployment = '';
+		}
+	}
 
 	let characters = $derived([...new Set(
 		Object.entries(meta)
@@ -42,18 +51,15 @@
 			.map(([, m]) => m.characterName!)
 	)].sort());
 
-	let useCases = $derived([...new Set(
-		Object.entries(meta)
-			.filter(([, m]) => m.useCase)
-			.map(([, m]) => m.useCase!)
-	)].sort());
-
 	let ids = $derived(allIds.filter(id => {
-		if (filterVote === 'approved' && votes[id] === 'rejected') return false;
+		if (filterReview === 'accepted' && votes[id] !== 'approved') return false;
+		if (filterReview === 'rejected' && votes[id] !== 'rejected') return false;
+		if (filterReview === 'pending' && votes[id]) return false;
 		const m = meta[id];
 		if (!m) return true;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
-		if (filterUseCase && m.useCase !== filterUseCase) return false;
+		if (filterDeployment === 'staged' && m?.deployment !== 'staged') return false;
+		if (filterDeployment === 'published' && m?.deployment !== 'published') return false;
 		return true;
 	}));
 
@@ -186,17 +192,9 @@
 	<div class="max-w-7xl mx-auto">
 		<h1 class="font-satoshi text-xl text-cream">Bavaria</h1>
 		<div class="flex items-center gap-4 mt-2">
-			<span class="text-cream/50 text-xs font-mono">All</span>
-			<button
-				class="relative w-8 h-[22px] rounded-full transition-colors border border-cream/10 {filterVote === 'approved' ? 'bg-cream/30' : 'bg-cream/10'}"
-				onclick={() => filterVote = filterVote === 'all' ? 'approved' : 'all'}
-			>
-				<span class="absolute top-[3px] left-[3px] w-[14px] h-[14px] rounded-full bg-cream/70 transition-transform {filterVote === 'approved' ? 'translate-x-[10px]' : ''}"></span>
-			</button>
-			<span class="text-cream/50 text-xs font-mono">Approved</span>
-			{#if characters.length > 0 || useCases.length > 0}
+			{#if characters.length > 0}
 				<select
-					class="bg-dark text-cream/80 text-xs px-2 py-1 rounded border border-cream/10 font-mono"
+					class="bg-dark text-cream/80 text-xs px-2 py-px rounded border border-cream/10 font-mono h-[20px]"
 					bind:value={filterCharacter}
 				>
 					<option value="">All characters</option>
@@ -204,16 +202,27 @@
 						<option value={c}>{c}</option>
 					{/each}
 				</select>
-				<select
-					class="bg-dark text-cream/80 text-xs px-2 py-1 rounded border border-cream/10 font-mono"
-					bind:value={filterUseCase}
-				>
-					<option value="">All use cases</option>
-					{#each useCases as uc}
-						<option value={uc}>{uc}</option>
-					{/each}
-				</select>
 			{/if}
+			<div class="flex" role="radiogroup" aria-label="Review status">
+				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}] as item, i}
+					<button
+						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterReview === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
+						onclick={() => setFilterReview(item.v)}
+					>
+						{item.l}
+					</button>
+				{/each}
+			</div>
+			<div class="flex {filterReview !== 'accepted' ? 'opacity-30 pointer-events-none' : ''}" role="radiogroup" aria-label="Deployment status">
+				{#each [{v: 'staged', l: 'Staged'}, {v: 'published', l: 'Published'}] as item, i}
+					<button
+						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterDeployment === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
+						onclick={() => filterDeployment = filterDeployment === item.v ? '' : item.v}
+					>
+						{item.l}
+					</button>
+				{/each}
+			</div>
 		</div>
 	</div>
 </nav>

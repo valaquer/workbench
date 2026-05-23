@@ -1,6 +1,6 @@
 # Workbench — ARCHITECTURE.md
 
-Last updated: 2026-05-21
+Last updated: 2026-05-22
 
 ---
 
@@ -42,10 +42,10 @@ library/workbench/
       +layout.server.ts              # Server-side layout loader
       +page.svelte                   # Landing page
 
-      # === Bavaria Production Asset Management (REQ-001) ===
+      # === Bavaria Production Asset Management (REQ-001 through REQ-008) ===
       bavaria/                       # Production asset grid + review controls
-        +page.svelte                 # Responsive grid, voting, lightbox, zoom, drag-compare, arrow keys, ESC layering
-        +page.server.ts              # Reads from BAVARIA_DIR (library/bavaria/), loads bavaria-manifest.json
+        +page.svelte                 # Responsive grid, voting, lightbox, zoom, drag-compare, arrow keys, ESC layering, CSV metadata filters, comments display, approved/all toggle switch, realtime SSE updates
+        +page.server.ts              # Reads from BAVARIA_DIR (library/bavaria/), loads bavaria-manifest.json + CSV009/001/002/000 metadata. Returns ids, votes, meta, comments.
 
       # === Visual Asset Management (legacy Vast.ai era) ===
       gallery/                       # LoRA ablation review (E001-E014)
@@ -84,6 +84,7 @@ library/workbench/
       api/
         bavaria/[id]/+server.ts      # Serve Bavaria image by ID (PNG/JPG/JPEG/WebP)
         bavaria/vote/+server.ts      # Bavaria approve/reject votes (POST/DELETE to bavaria-manifest.json)
+        bavaria/events/+server.ts    # SSE endpoint — fs.watch on BAVARIA_DIR, pushes change events to browser (REQ-005)
         rd/[id]/+server.ts           # Serve image by ID from GALLERY_DIR
         rd/[id]/pin/+server.ts       # Pin image
         rd/[id]/trash/+server.ts     # Trash image

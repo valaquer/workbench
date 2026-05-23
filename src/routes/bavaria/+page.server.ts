@@ -61,6 +61,7 @@ export interface AssetMeta {
 	useCaseLabel?: string;
 	concept?: string;
 	model?: string;
+	deployment?: string;
 }
 
 function parseCsv(text: string): string[][] {
@@ -181,6 +182,7 @@ export async function load() {
 			useCaseLabel: uc?.description,
 			concept: asset.concept,
 			model: asset.model,
+			deployment: asset.destination || undefined,
 		};
 	}
 
