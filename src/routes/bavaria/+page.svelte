@@ -56,7 +56,7 @@
 		if (filterReview === 'rejected' && votes[id] !== 'rejected') return false;
 		if (filterReview === 'pending' && votes[id]) return false;
 		const m = meta[id];
-		if (!m) return true;
+		if (!m) return !filterCharacter && !filterDeployment;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
 		if (filterDeployment === 'staged' && m?.deployment !== 'staged') return false;
 		if (filterDeployment === 'published' && m?.deployment !== 'published') return false;
