@@ -1,56 +1,122 @@
 <script>
+	import { onMount } from 'svelte';
+	import { getSvgPath } from 'figma-squircle';
+
+	let squirclePath24 = $state('');
+	let squirclePath12 = $state('');
+	let card1;
+	let card2;
+
+	onMount(() => {
+		// Generate squircle paths after mount so we know the card dimensions
+		const rect1 = card1?.getBoundingClientRect();
+		const rect2 = card2?.getBoundingClientRect();
+
+		if (rect1) {
+			squirclePath24 = getSvgPath({
+				width: rect1.width,
+				height: rect1.height,
+				cornerRadius: 24,
+				cornerSmoothing: 0.6  // Apple's iOS uses ~0.6
+			});
+		}
+		if (rect2) {
+			squirclePath12 = getSvgPath({
+				width: rect2.width,
+				height: rect2.height,
+				cornerRadius: 12,
+				cornerSmoothing: 0.6
+			});
+		}
+	});
 </script>
 
 <div class="min-h-screen" style="background-color: #0B0D10;">
-	<div style="max-width: 600px; margin: 0 auto; padding: 80px 32px;">
+	<div style="max-width: 900px; margin: 0 auto; padding: 80px 32px;">
 		<p style="
 			font-family: 'JetBrains Mono', monospace;
 			font-size: 11px;
 			color: rgba(232,228,223,0.4);
 			margin-bottom: 40px;
-			text-align: center;
-		">Linear card effect — extracted from live DOM</p>
+		">Left: standard border-radius — Right: figma-squircle (iOS continuous corners, smoothing 0.6)</p>
 
-		<!-- Card with Linear's exact floating effect -->
-		<div style="position: relative;">
-			<!-- Glow element — radial white gradient positioned top-left (directional light) -->
-			<div style="
-				position: absolute;
-				top: -100px;
-				left: -60px;
-				width: 400px;
-				height: 400px;
-				background: radial-gradient(50% 50%, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0) 90%);
-				pointer-events: none;
-			"></div>
+		<!-- 24px comparison -->
+		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-bottom: 60px;">
+			<!-- Standard 24px -->
+			<div>
+				<div style="
+					border: 1px solid rgba(255,255,255, 0.08);
+					border-radius: 24px;
+					overflow: hidden;
+				">
+					<img src="/sandbox/girls/sophie.jpg" alt="Sophie" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;" />
+					<div style="padding: 20px;">
+						<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.4rem; font-weight: 500; color: #E8E4DF; margin-bottom: 6px;">Sophie</h3>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; line-height: 1.5; color: #E8E4DF; opacity: 0.8;">She remembers the way you like your coffee.</p>
+					</div>
+				</div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(232,228,223,0.4); margin-top: 12px; text-align: center;">Standard border-radius: 24px</p>
+			</div>
 
-			<!-- The card itself -->
-			<div style="
-				position: relative;
-				background-color: rgba(255, 255, 255, 0.01);
-				border: 1px solid rgba(255, 255, 255, 0.08);
-				box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px, rgba(8, 9, 10, 0.4) 0px 0px 64px 0px;
-				border-radius: 12px;
-				padding: 24px;
-			">
-				<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.6rem; font-weight: 500; color: #E8E4DF; margin-bottom: 12px;">Sophie</h3>
-				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; line-height: 1.6; color: #E8E4DF; opacity: 0.8; margin-bottom: 16px;">She remembers the way you like your coffee. The name of your childhood dog. That you hate cilantro.</p>
-				<button style="padding: 10px 20px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; font-weight: 500; border: none; border-radius: 6px;">Meet her</button>
+			<!-- Squircle 24px -->
+			<div>
+				<div
+					bind:this={card1}
+					style="
+						overflow: hidden;
+						{squirclePath24 ? `clip-path: path('${squirclePath24}');` : 'border-radius: 24px;'}
+					"
+				>
+					<img src="/sandbox/girls/sophie.jpg" alt="Sophie" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;" />
+					<div style="padding: 20px;">
+						<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.4rem; font-weight: 500; color: #E8E4DF; margin-bottom: 6px;">Sophie</h3>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; line-height: 1.5; color: #E8E4DF; opacity: 0.8;">She remembers the way you like your coffee.</p>
+					</div>
+				</div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(232,228,223,0.4); margin-top: 12px; text-align: center;">Apple squircle: 24px, smoothing 0.6</p>
 			</div>
 		</div>
 
+		<!-- 12px comparison -->
 		<p style="
 			font-family: 'JetBrains Mono', monospace;
 			font-size: 11px;
 			color: rgba(232,228,223,0.4);
-			margin-top: 40px;
-			line-height: 1.8;
-		">
-			bg: rgba(255,255,255, 0.01)<br>
-			border: 1px solid rgba(255,255,255, 0.08)<br>
-			shadow ring: rgba(0,0,0, 0.2) 0 0 0 1px<br>
-			shadow ambient: rgba(8,9,10, 0.4) 0 0 64px<br>
-			glow: radial-gradient rgba(255,255,255, 0.04) → transparent
-		</p>
+			margin-bottom: 24px;
+		">Same at 12px radius</p>
+
+		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+			<!-- Standard 12px -->
+			<div>
+				<div style="
+					border: 1px solid rgba(255,255,255, 0.08);
+					border-radius: 12px;
+					overflow: hidden;
+				">
+					<img src="/sandbox/girls/valentina.jpg" alt="Valentina" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;" />
+					<div style="padding: 20px;">
+						<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.4rem; font-weight: 500; color: #E8E4DF;">Valentina</h3>
+					</div>
+				</div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(232,228,223,0.4); margin-top: 12px; text-align: center;">Standard 12px</p>
+			</div>
+
+			<!-- Squircle 12px -->
+			<div>
+				<div
+					bind:this={card2}
+					style="
+						overflow: hidden;
+						{squirclePath12 ? `clip-path: path('${squirclePath12}');` : 'border-radius: 12px;'}
+					"
+				>
+					<img src="/sandbox/girls/valentina.jpg" alt="Valentina" style="width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;" />
+					<div style="padding: 20px;">
+						<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.4rem; font-weight: 500; color: #E8E4DF;">Valentina</h3>
+					</div>
+				</div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(232,228,223,0.4); margin-top: 12px; text-align: center;">Squircle 12px</p>
+			</div>
+		</div>
 	</div>
 </div>

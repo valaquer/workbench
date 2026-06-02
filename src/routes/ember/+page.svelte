@@ -232,11 +232,25 @@
 				</div>
 			</div>
 
+			<!-- Squircle Radius Scale -->
+			<div>
+				<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: #E8E4DF; margin-bottom: 8px;">Corner Radius Scale (locked)</h3>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; color: #E8E4DF; opacity: 0.8; margin-bottom: 20px;">Apple-style continuous corners via figma-squircle (cornerSmoothing: 0.6). Radius scales with element size.</p>
+
+				<div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #E8E4DF; line-height: 2.2;">
+					<p><span style="color: #AE0D46;">24px squircle</span> — girl cards, hero containers, modals</p>
+					<p><span style="color: #AE0D46;">12px squircle</span> — buttons, CTA, inputs, small cards</p>
+					<p><span style="color: #AE0D46;">8px standard</span> — tags, badges, tooltips (squircle invisible at this size)</p>
+					<p><span style="color: #AE0D46;">50% round</span> — avatars, circular elements</p>
+				</div>
+
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: rgba(232,228,223,0.4); margin-top: 12px;">Implementation: npm figma-squircle v1.1.0 · getSvgPath() · clip-path: path()</p>
+			</div>
+
 			<!-- Remaining checklist items -->
 			<div>
 				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 12px;">REMAINING ITEMS (undecided)</p>
 				<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.5; line-height: 1.8;">
-					<li>Border radius scale (cards, buttons, inputs, avatars)</li>
 					<li>Divider lines (horizontal, vertical)</li>
 					<li>Image border treatment (rounded corners, no border vs subtle border)</li>
 				</ol>
