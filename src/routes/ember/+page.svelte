@@ -67,18 +67,72 @@
 		{/if}
 
 		{#if activeSection === 'colors'}
-		<section class="space-y-4">
-			<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.85; line-height: 1.8;">
-				<li>Core palette (canvas, accent, text, semantic)</li>
-				<li>Color naming convention</li>
-				<li>Opacity variants (fill percentages, border percentages)</li>
-				<li>Text color on dark canvas</li>
-				<li>Text color on light canvas</li>
-				<li>Accent usage rules (when magenta, when emerald, when neutral)</li>
-				<li>Semantic colors (success, error, warning, info)</li>
-				<li>Gradient definitions (if any)</li>
-				<li>Dark mode / light mode mapping</li>
-			</ol>
+		<section class="space-y-8">
+			<!-- Locked palette -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">CORE PALETTE (locked)</p>
+				<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+					<div>
+						<div style="width: 100%; height: 80px; background-color: #0B0D10; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);"></div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #E8E4DF; margin-top: 8px;">#0B0D10</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5;">Canvas (premium black, cool blue undertone)</p>
+					</div>
+					<div>
+						<div style="width: 100%; height: 80px; background-color: #AE0D46; border-radius: 8px;"></div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #E8E4DF; margin-top: 8px;">#AE0D46</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5;">Magenta accent (sole warm color)</p>
+					</div>
+					<div>
+						<div style="width: 100%; height: 80px; background-color: #E8E4DF; border-radius: 8px;"></div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #E8E4DF; margin-top: 8px;">#E8E4DF</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5;">Neutral cream (text, temperature-neutral)</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Text opacity tiers -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">TEXT OPACITY TIERS (locked)</p>
+				<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; line-height: 2;">
+					<p style="color: #E8E4DF; opacity: 1;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 0.4; margin-right: 12px;">100%</span> Headlines, hero text, primary content</p>
+					<p style="color: #E8E4DF; opacity: 0.8;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 0.5; margin-right: 12px;">80%</span> Body copy, secondary text</p>
+					<p style="color: #E8E4DF; opacity: 0.4;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; opacity: 1; margin-right: 12px;">40%</span> Metadata, labels, captions</p>
+				</div>
+			</div>
+
+			<!-- Magenta usage rules -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">MAGENTA USAGE RULES (locked)</p>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+					<div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-bottom: 8px;">USE FOR</p>
+						<ul style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 2; list-style: none; padding: 0;">
+							<li>CTA buttons (Join the waitlist, Meet her)</li>
+							<li>Shimmer glow behind girl photos</li>
+							<li>Hover accents on links and interactive elements</li>
+							<li>Active states (selected nav, active tabs)</li>
+							<li>Input focus border (email field commitment reward)</li>
+						</ul>
+					</div>
+					<div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">NEVER USE FOR</p>
+						<ul style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.5; line-height: 2; list-style: none; padding: 0;">
+							<li>Body text color</li>
+							<li>Full section backgrounds</li>
+							<li>Borders (use white-opacity instead)</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!-- Remaining -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 12px;">REMAINING ITEMS (undecided)</p>
+				<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.5; line-height: 1.8;">
+					<li>Semantic colors (success, error, warning — deferred to Prague)</li>
+					<li>Gradient definitions (magenta shimmer formalized)</li>
+				</ol>
+			</div>
 		</section>
 		{/if}
 
