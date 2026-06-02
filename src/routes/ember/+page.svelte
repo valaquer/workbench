@@ -129,16 +129,64 @@
 		{/if}
 
 		{#if activeSection === 'borders-shadows'}
-		<section class="space-y-4">
-			<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.85; line-height: 1.8;">
-				<li>Border color and opacity</li>
-				<li>Border width (1px standard)</li>
-				<li>Border radius scale (cards, buttons, inputs, avatars)</li>
-				<li>Card shadow (resting, hover, elevated)</li>
-				<li>Drop shadow for modals / overlays</li>
-				<li>Divider lines (horizontal, vertical)</li>
-				<li>Image border treatment (rounded corners, no border vs subtle border)</li>
-			</ol>
+		<section class="space-y-8">
+			<!-- Floating Card Spec -->
+			<div>
+				<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: #E8E4DF; margin-bottom: 8px;">Floating Card (Primary Elevation)</h3>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; color: #E8E4DF; opacity: 0.8; margin-bottom: 20px;">Directional light simulation — card feels like a physical surface catching light in a dark room. Extracted from Linear's live DOM.</p>
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+					<!-- Live example -->
+					<div style="position: relative;">
+						<div style="
+							position: absolute;
+							top: -100px;
+							left: -60px;
+							width: 400px;
+							height: 400px;
+							background: radial-gradient(50% 50%, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0) 90%);
+							pointer-events: none;
+						"></div>
+						<div style="
+							position: relative;
+							background-color: rgba(255, 255, 255, 0.01);
+							border: 1px solid rgba(255, 255, 255, 0.08);
+							box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px, rgba(8, 9, 10, 0.4) 0px 0px 64px 0px;
+							border-radius: 12px;
+							padding: 24px;
+						">
+							<h4 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.3rem; font-weight: 500; color: #E8E4DF; margin-bottom: 8px;">Sophie</h4>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; line-height: 1.5; color: #E8E4DF; opacity: 0.8;">She remembers the way you like your coffee.</p>
+							<button style="margin-top: 14px; padding: 10px 20px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; font-weight: 500; border: none; border-radius: 6px;">Meet her</button>
+						</div>
+					</div>
+
+					<!-- Spec breakdown -->
+					<div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 2.2; color: #E8E4DF;">
+						<p style="opacity: 0.4; margin-bottom: 12px;">5-LAYER SYSTEM</p>
+						<p><span style="opacity: 0.4;">1.</span> <span style="color: #AE0D46;">bg</span> rgba(255,255,255, 0.01)</p>
+						<p style="opacity: 0.6; font-size: 0.7rem; margin-bottom: 8px;">1% white tint — barely perceptible, creates micro-separation from canvas</p>
+						<p><span style="opacity: 0.4;">2.</span> <span style="color: #AE0D46;">border</span> 1px solid rgba(255,255,255, 0.08)</p>
+						<p style="opacity: 0.6; font-size: 0.7rem; margin-bottom: 8px;">8% white — defines the edge without drawing attention</p>
+						<p><span style="opacity: 0.4;">3.</span> <span style="color: #AE0D46;">ring shadow</span> rgba(0,0,0, 0.2) 0 0 0 1px</p>
+						<p style="opacity: 0.6; font-size: 0.7rem; margin-bottom: 8px;">Sharpens the card edge — sits just outside the border</p>
+						<p><span style="opacity: 0.4;">4.</span> <span style="color: #AE0D46;">ambient shadow</span> rgba(8,9,10, 0.4) 0 0 64px</p>
+						<p style="opacity: 0.6; font-size: 0.7rem; margin-bottom: 8px;">Large soft shadow — the depth. Makes it feel like it's hovering above the canvas</p>
+						<p><span style="opacity: 0.4;">5.</span> <span style="color: #AE0D46;">glow div</span> radial-gradient(50% 50%, rgba(255,255,255, 0.04) 0px, transparent 90%)</p>
+						<p style="opacity: 0.6; font-size: 0.7rem;">Separate element behind card, positioned top-left — simulates directional overhead light catching the card's upper edge</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Remaining checklist items -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 12px;">REMAINING ITEMS (undecided)</p>
+				<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.5; line-height: 1.8;">
+					<li>Border radius scale (cards, buttons, inputs, avatars)</li>
+					<li>Divider lines (horizontal, vertical)</li>
+					<li>Image border treatment (rounded corners, no border vs subtle border)</li>
+				</ol>
+			</div>
 		</section>
 		{/if}
 
