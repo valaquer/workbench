@@ -1,3 +1,4 @@
+@import 'lenis/dist/lenis.css';
 @import 'tailwindcss';
 
 /* ═══════════════════════════════════════════════════════════════
@@ -19,7 +20,10 @@
 	font-display: swap;
 }
 
-/* Inter + JetBrains Mono from Google Fonts */
+/* Fontshare — Satoshi (headlines) */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap');
+/* Google Fonts — Cormorant Garamond (kept for reference) + Inter + JetBrains Mono */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -165,7 +169,7 @@ html, body {
 /* Geist Sans: loaded via next/font or manual hosting
    Fallback stack for when Geist isn't available yet */
 .font-headline {
-	font-family: 'Geist Sans', 'Geist', system-ui, -apple-system, sans-serif;
+	font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .font-body {
@@ -177,7 +181,7 @@ html, body {
 }
 
 /* Legacy aliases for migration */
-.font-satoshi { font-family: 'Geist Sans', 'Geist', system-ui, sans-serif; }
+.font-satoshi { font-family: 'Satoshi', system-ui, -apple-system, sans-serif; }
 .font-inter { font-family: 'Inter', system-ui, sans-serif; }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -194,7 +198,7 @@ html, body {
 
 /* Hero: 40px → 72px Geist Semibold — H1 hero headlines (D03: 700→600) */
 .text-hero {
-	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
+	font-family: 'Cormorant Garamond', Georgia, serif;
 	font-size: clamp(2.5rem, 4vw + 1.5rem, 4.5rem);
 	font-weight: 600;
 	line-height: 1.1;
@@ -203,7 +207,7 @@ html, body {
 
 /* Display: 32px → 48px Geist Medium — H2, section titles */
 .text-display {
-	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
+	font-family: 'Cormorant Garamond', Georgia, serif;
 	font-size: clamp(2rem, 3vw + 1rem, 3rem);
 	font-weight: 500;
 	line-height: 1.15;
@@ -212,7 +216,7 @@ html, body {
 
 /* Heading: 24px → 32px Geist Medium — Block titles */
 .text-heading {
-	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
+	font-family: 'Cormorant Garamond', Georgia, serif;
 	font-size: clamp(1.5rem, 2vw + 0.75rem, 2rem);
 	font-weight: 500;
 	line-height: 1.2;
@@ -221,7 +225,7 @@ html, body {
 
 /* Subhead: 20px → 24px Geist Medium — Subheadings */
 .text-subhead {
-	font-family: 'Geist Sans', 'Geist', system-ui, sans-serif;
+	font-family: 'Cormorant Garamond', Georgia, serif;
 	font-size: clamp(1.25rem, 1.5vw + 0.75rem, 1.5rem);
 	font-weight: 500;
 	line-height: 1.3;
