@@ -13,7 +13,8 @@
 		'block-layouts',
 		'breakpoints',
 		'motion',
-		'photography'
+		'photography',
+		'text-overlays'
 	];
 
 	const labels = {
@@ -28,7 +29,8 @@
 		'block-layouts': 'Block Layouts',
 		'breakpoints': 'Breakpoints',
 		'motion': 'Motion',
-		'photography': 'Photography Aesthetics'
+		'photography': 'Photography Aesthetics',
+		'text-overlays': 'Text Overlays'
 	};
 </script>
 
@@ -345,6 +347,21 @@
 				<li>Alt text conventions</li>
 				<li>Girl photo categories (hero, everyday, NSFW — when to use which)</li>
 				<li>Background separation (cutout quality for parallax)</li>
+			</ol>
+		</section>
+		{/if}
+
+		{#if activeSection === 'text-overlays'}
+		<section class="space-y-4">
+			<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.85; line-height: 1.8;">
+				<li>Gradient direction (bottom-up for photo cards)</li>
+				<li>Gradient opacity range (transparent → black at what %)</li>
+				<li>Gradient height (what % of the card does it cover)</li>
+				<li>Text positioning within the gradient (padding from bottom/sides)</li>
+				<li>Text color on gradient (always 100% cream or adjusted?)</li>
+				<li>Font pairing on overlays (which type scale levels)</li>
+				<li>Maximum text length before truncation</li>
+				<li>Overlay on hover vs always visible</li>
 			</ol>
 		</section>
 		{/if}
