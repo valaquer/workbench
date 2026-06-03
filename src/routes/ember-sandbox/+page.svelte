@@ -443,17 +443,50 @@
 		{/if}
 
 		{#if activeSection === 'spacing'}
-		<section class="space-y-4">
-			<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.85; line-height: 1.8;">
-				<li>Base unit (4px, 8px — the grid)</li>
-				<li>Component internal padding</li>
-				<li>Section vertical padding</li>
-				<li>Gap between elements within a block</li>
-				<li>Gap between blocks/sections</li>
-				<li>Horizontal page margins (responsive)</li>
-				<li>Max content width</li>
-				<li>Spacing scale (named values — xs, sm, md, lg, xl, 2xl)</li>
-			</ol>
+		<section class="space-y-12">
+			<!-- Scale -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 4px;">SPACING SCALE (base unit: 4px)</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">Everything is a multiple of 4. Named values for consistency across the product.</p>
+
+				<div style="display: flex; flex-direction: column; gap: 16px;">
+					{#each [
+						{ name: 'xs', value: '4px', use: 'Tight gaps (icon-to-label)', width: 4 },
+						{ name: 'sm', value: '8px', use: 'Inline spacing, tag padding', width: 8 },
+						{ name: 'md', value: '16px', use: 'Component padding, sibling gaps', width: 16 },
+						{ name: 'lg', value: '24px', use: 'Card padding, group gaps', width: 24 },
+						{ name: 'xl', value: '48px', use: 'Section vertical padding', width: 48 },
+						{ name: '2xl', value: '80px', use: 'Hero/footer breathing room', width: 80 }
+					] as s}
+					<div style="display: flex; align-items: center; gap: 16px;">
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #AE0D46; width: 32px;">{s.name}</p>
+						<div style="width: {s.width}px; height: 24px; background-color: rgba(174,13,70,0.3); border-radius: 4px; flex-shrink: 0;"></div>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #E8E4DF; width: 48px;">{s.value}</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5;">{s.use}</p>
+					</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Page layout -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">PAGE LAYOUT</p>
+				<div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 2.2; color: #E8E4DF;">
+					<p><span style="color: #AE0D46;">Max content width</span> 1120px (70rem)</p>
+					<p><span style="color: #AE0D46;">Horizontal margin</span> 32px mobile · 48px tablet · auto-center desktop</p>
+					<p><span style="color: #AE0D46;">Section gap</span> 80px desktop · 48px mobile</p>
+				</div>
+			</div>
+
+			<!-- Component rules -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">COMPONENT RULES</p>
+				<div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 2.2; color: #E8E4DF;">
+					<p><span style="color: #AE0D46;">Card padding</span> 24px (lg)</p>
+					<p><span style="color: #AE0D46;">Text element gap</span> 16px (md)</p>
+					<p><span style="color: #AE0D46;">Heading → body gap</span> 8px (sm)</p>
+				</div>
+			</div>
 		</section>
 		{/if}
 
