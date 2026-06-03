@@ -22,6 +22,22 @@
 
 /* Fontshare — Satoshi (headlines) */
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap');
+/* iA Writer Quattro V — chat interface font (Boss pick, SIL license) */
+@font-face {
+	font-family: 'iA Writer Quattro V';
+	src: url('/fonts/ia-writer-quattro/iAWriterQuattroV.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'iA Writer Quattro V';
+	src: url('/fonts/ia-writer-quattro/iAWriterQuattroV-Italic.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: italic;
+	font-display: swap;
+}
+
 /* Google Fonts — Cormorant Garamond (kept for reference) + Inter + JetBrains Mono */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
