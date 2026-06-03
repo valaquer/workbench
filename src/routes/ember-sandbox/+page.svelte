@@ -5,6 +5,34 @@
 	let activeSection = $state(null);
 	let squircleCard;
 	let squirclePath = $state('');
+	let shimmerBtn1;
+	let shimmerBtn2;
+
+	function observeShimmer(el) {
+		if (!el) return;
+		const shimmerDiv = el.querySelector('[data-shimmer]');
+		if (!shimmerDiv) return;
+		let timer = null;
+		let isVisible = false;
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				isVisible = entry.isIntersecting;
+				if (isVisible) {
+					const delay = 1 + Math.random() * 2; // 1s to 3s
+					timer = setTimeout(() => {
+						if (isVisible) {
+							shimmerDiv.style.animation = 'shimmer 0.8s ease-out forwards';
+							observer.unobserve(el);
+						}
+					}, delay * 1000);
+				} else if (timer) {
+					clearTimeout(timer);
+					timer = null;
+				}
+			});
+		}, { threshold: 0.5 });
+		observer.observe(el);
+	}
 
 	onMount(() => {
 		// Restore persisted section
@@ -28,6 +56,13 @@
 			localStorage.setItem('ember-sandbox-section', activeSection);
 		} else {
 			localStorage.removeItem('ember-sandbox-section');
+		}
+		if (activeSection === 'buttons') {
+			// Delay to let DOM render
+			setTimeout(() => {
+				observeShimmer(shimmerBtn1);
+				observeShimmer(shimmerBtn2);
+			}, 50);
 		}
 	});
 
@@ -297,19 +332,113 @@
 		{/if}
 
 		{#if activeSection === 'buttons'}
-		<section class="space-y-4">
-			<ol class="list-decimal list-inside space-y-2" style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.95rem; opacity: 0.85; line-height: 1.8;">
-				<li>Primary CTA (solid fill — color, size, radius, padding)</li>
-				<li>Secondary CTA (soft fill or ghost)</li>
-				<li>Tertiary / text-only button</li>
-				<li>Button sizes (small, default, large)</li>
-				<li>Hover states (color shift, scale, shadow)</li>
-				<li>Active / pressed states</li>
-				<li>Disabled states (opacity, cursor)</li>
-				<li>Focus ring (accessibility)</li>
-				<li>Icon + text button layout</li>
-				<li>Button spacing in groups</li>
-			</ol>
+		<section class="space-y-12">
+
+			<!-- Primary CTA -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">PRIMARY CTA</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-bottom: 20px;">bg #AE0D46 · hover #8A0A38 · Inter 500 14px · 12px 24px · 12px squircle · focus: 2px magenta ring offset 2px</p>
+				<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.15s, transform 0.1s;"
+						onmouseenter={(e) => e.target.style.backgroundColor = '#8A0A38'}
+						onmouseleave={(e) => e.target.style.backgroundColor = '#AE0D46'}
+						onmousedown={(e) => e.target.style.transform = 'scale(0.98)'}
+						onmouseup={(e) => e.target.style.transform = 'scale(1)'}
+					>Join the waitlist</button>
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.15s, transform 0.1s;"
+						onmouseenter={(e) => e.target.style.backgroundColor = '#8A0A38'}
+						onmouseleave={(e) => e.target.style.backgroundColor = '#AE0D46'}
+						onmousedown={(e) => e.target.style.transform = 'scale(0.98)'}
+						onmouseup={(e) => e.target.style.transform = 'scale(1)'}
+					>Meet her</button>
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 12px; cursor: not-allowed; opacity: 0.3;">Disabled</button>
+				</div>
+			</div>
+
+			<!-- Primary CTA with Shimmer (locked) -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">PRIMARY CTA + SHIMMER (locked)</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-bottom: 20px;">One-shot on viewport entry · 90deg · 0.8s ease-out · white/20 · Hero CTA + Final CTA only</p>
+				<div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+					<button bind:this={shimmerBtn1} style="position: relative; padding: 16px 32px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; overflow: hidden; transition: background-color 0.15s, box-shadow 0.3s;"
+						onmouseenter={(e) => { e.currentTarget.style.backgroundColor = '#8A0A38'; e.currentTarget.style.boxShadow = '0 0 30px rgba(174,13,70,0.3)'; }}
+						onmouseleave={(e) => { e.currentTarget.style.backgroundColor = '#AE0D46'; e.currentTarget.style.boxShadow = 'none'; }}
+					>
+						<span style="position: relative; z-index: 1;">Join the waitlist</span>
+						<div data-shimmer style="position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 100%);"></div>
+					</button>
+					<button bind:this={shimmerBtn2} style="position: relative; padding: 16px 32px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer; overflow: hidden; transition: background-color 0.15s, box-shadow 0.3s;"
+						onmouseenter={(e) => { e.currentTarget.style.backgroundColor = '#8A0A38'; e.currentTarget.style.boxShadow = '0 0 30px rgba(174,13,70,0.3)'; }}
+						onmouseleave={(e) => { e.currentTarget.style.backgroundColor = '#AE0D46'; e.currentTarget.style.boxShadow = 'none'; }}
+					>
+						<span style="position: relative; z-index: 1;">Don't miss out</span>
+						<div data-shimmer style="position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 100%);"></div>
+					</button>
+				</div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-top: 12px;">Scarcity rule: shimmer on hero CTA + final CTA only. All other buttons are static magenta.</p>
+			</div>
+
+			<!-- Secondary (Ghost) -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">SECONDARY (GHOST)</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-bottom: 20px;">bg transparent · border 1px rgba(255,255,255,0.15) · hover: bg 5% white, border 25% white · 12px 24px · 12px radius</p>
+				<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+					<button style="padding: 12px 24px; background-color: transparent; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; transition: all 0.15s;"
+						onmouseenter={(e) => { e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
+						onmouseleave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+						onmousedown={(e) => e.target.style.transform = 'scale(0.98)'}
+						onmouseup={(e) => e.target.style.transform = 'scale(1)'}
+					>Learn more</button>
+					<button style="padding: 12px 24px; background-color: transparent; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; transition: all 0.15s;"
+						onmouseenter={(e) => { e.target.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
+						onmouseleave={(e) => { e.target.style.backgroundColor = 'transparent'; e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+						onmousedown={(e) => e.target.style.transform = 'scale(0.98)'}
+						onmouseup={(e) => e.target.style.transform = 'scale(1)'}
+					>View roster</button>
+					<button style="padding: 12px 24px; background-color: transparent; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: not-allowed; opacity: 0.3;">Disabled</button>
+				</div>
+			</div>
+
+			<!-- Tertiary (Text-only) -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">TERTIARY (TEXT-ONLY)</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-bottom: 20px;">No bg, no border · text 80% · hover: 100% + underline · active: 60%</p>
+				<div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+					<button style="padding: 0; background: none; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; text-decoration: none;"
+						onmouseenter={(e) => { e.target.style.color = '#E8E4DF'; e.target.style.textDecoration = 'underline'; }}
+						onmouseleave={(e) => { e.target.style.color = 'rgba(232,228,223,0.8)'; e.target.style.textDecoration = 'none'; }}
+						onmousedown={(e) => e.target.style.color = 'rgba(232,228,223,0.6)'}
+						onmouseup={(e) => e.target.style.color = '#E8E4DF'}
+					>Privacy policy</button>
+					<button style="padding: 0; background: none; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 0.15s; text-decoration: none;"
+						onmouseenter={(e) => { e.target.style.color = '#E8E4DF'; e.target.style.textDecoration = 'underline'; }}
+						onmouseleave={(e) => { e.target.style.color = 'rgba(232,228,223,0.8)'; e.target.style.textDecoration = 'none'; }}
+						onmousedown={(e) => e.target.style.color = 'rgba(232,228,223,0.6)'}
+						onmouseup={(e) => e.target.style.color = '#E8E4DF'}
+					>Terms of service</button>
+				</div>
+			</div>
+
+			<!-- Sizes -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">SIZES</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: rgba(232,228,223,0.3); margin-bottom: 20px;">Small: 10px 16px / 13px · Default: 12px 24px / 14px · Large: 16px 32px / 16px</p>
+				<div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+					<button style="padding: 10px 16px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer;">Small</button>
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer;">Default</button>
+					<button style="padding: 16px 32px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 16px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer;">Large</button>
+				</div>
+			</div>
+
+			<!-- Pairing demo -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">PAIRING (primary + ghost)</p>
+				<div style="display: flex; gap: 12px; align-items: center;">
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 12px; cursor: pointer;">Join the waitlist</button>
+					<button style="padding: 12px 24px; background-color: transparent; color: rgba(232,228,223,0.8); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer;">Learn more</button>
+				</div>
+			</div>
+
 		</section>
 		{/if}
 
