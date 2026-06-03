@@ -1,5 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import { readFile, writeFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import type { RequestHandler } from './$types';
 
@@ -13,6 +15,26 @@ interface AssetEntry {
 
 interface Manifest {
 	assets: Record<string, AssetEntry>;
+}
+
+function findAssetFile(id: string): string | null {
+	try {
+		const files = readdirSync(BAVARIA_DIR);
+		const match = files.find((f) => /\.(png|jpg|jpeg|webp)$/i.test(f) && f.replace(/\.(png|jpg|jpeg|webp)$/i, '') === id);
+		return match ? path.join(BAVARIA_DIR, match) : null;
+	} catch {
+		return null;
+	}
+}
+
+function setImmutable(id: string, lock: boolean): void {
+	const filePath = findAssetFile(id);
+	if (!filePath) return;
+	try {
+		execSync(`chflags ${lock ? 'uchg' : 'nouchg'} "${filePath}"`, { timeout: 3000 });
+	} catch (err) {
+		console.error(`[vault] chflags failed for ${id}:`, err instanceof Error ? err.message : String(err));
+	}
 }
 
 async function loadManifest(): Promise<Manifest> {
@@ -36,6 +58,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 	manifest.assets[id].vote = vote;
 	await writeFile(MANIFEST_FILE, JSON.stringify(manifest, null, '\t'));
+	setImmutable(id, vote === 'approved');
 
 	return json({ ok: true });
 };
@@ -52,6 +75,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 		manifest.assets[id].vote = null;
 	}
 	await writeFile(MANIFEST_FILE, JSON.stringify(manifest, null, '\t'));
+	setImmutable(id, false);
 
 	return json({ ok: true });
 };
