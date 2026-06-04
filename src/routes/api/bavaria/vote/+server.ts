@@ -9,7 +9,7 @@ const BAVARIA_DIR = '/Users/d.patnaik/honeybloom/library/bavaria';
 const MANIFEST_FILE = path.join(BAVARIA_DIR, 'bavaria-manifest.json');
 
 interface AssetEntry {
-	vote: 'approved' | 'rejected' | null;
+	vote: 'approved' | 'rejected' | 'intermediate' | null;
 	filename: string;
 }
 
@@ -48,7 +48,7 @@ async function loadManifest(): Promise<Manifest> {
 export const POST: RequestHandler = async ({ request }) => {
 	const { id, vote } = await request.json();
 
-	if (!id || !['approved', 'rejected'].includes(vote)) {
+	if (!id || !['approved', 'rejected', 'intermediate'].includes(vote)) {
 		throw error(400, 'Invalid payload');
 	}
 

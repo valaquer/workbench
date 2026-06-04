@@ -10,7 +10,7 @@ const CSV002_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/C
 const CSV000_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/CSV000-use-cases.csv';
 
 interface AssetEntry {
-	vote: 'approved' | 'rejected' | null;
+	vote: 'approved' | 'rejected' | 'intermediate' | null;
 	filename: string;
 	characterCode?: string;
 	useCase?: string;

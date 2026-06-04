@@ -52,9 +52,11 @@
 	)].sort());
 
 	let ids = $derived(allIds.filter(id => {
+		if (filterReview !== 'intermediate' && votes[id] === 'intermediate') return false;
 		if (filterReview === 'accepted' && votes[id] !== 'approved') return false;
 		if (filterReview === 'rejected' && votes[id] !== 'rejected') return false;
 		if (filterReview === 'pending' && votes[id]) return false;
+		if (filterReview === 'intermediate' && votes[id] !== 'intermediate') return false;
 		const m = meta[id];
 		if (!m) return !filterCharacter && !filterDeployment;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
@@ -204,7 +206,7 @@
 				</select>
 			{/if}
 			<div class="flex" role="radiogroup" aria-label="Review status">
-				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}] as item, i}
+				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}, {v: 'intermediate', l: 'Intermediate'}] as item, i}
 					<button
 						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterReview === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
 						onclick={() => setFilterReview(item.v)}
