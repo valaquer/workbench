@@ -8,6 +8,7 @@
 	let shimmerBtn1;
 	let shimmerBtn2;
 
+
 	function observeShimmer(el) {
 		if (!el) return;
 		const shimmerDiv = el.querySelector('[data-shimmer]');
@@ -101,11 +102,15 @@
 
 	// SECTION B: Mockups
 	const mockupSections = [
-		'floating-card-depth'
+		'floating-card-depth',
+		'blocks',
+		'lisbon'
 	];
 
 	const mockupLabels = {
-		'floating-card-depth': 'Floating Card (Depth Demo)'
+		'floating-card-depth': 'Floating Card (Depth Demo)',
+		'blocks': 'Blocks',
+		'lisbon': 'Lisbon'
 	};
 
 	const allSections = [...styleGuideSections, ...mockupSections];
@@ -796,6 +801,99 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	{/if}
+
+	{#if activeSection === 'blocks'}
+	<div style="position: relative; min-height: 100vh;">
+		<!-- Back button -->
+		<button
+			onclick={() => activeSection = null}
+			style="position: fixed; top: 20px; left: 20px; z-index: 100; padding: 8px 16px; background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.75rem; cursor: pointer;"
+		>← Back to TOC</button>
+
+		<div class="max-w-5xl mx-auto px-8 py-16 space-y-12">
+			<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: #E8E4DF; margin-bottom: 8px;">Blocks</h3>
+			<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; color: #E8E4DF; opacity: 0.8; margin-bottom: 20px;">Page composition blocks for the 7-section landing page.</p>
+
+			<!-- BLOCK 0: Nav Bar -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">BLOCK 0 — NAV BAR</p>
+
+				<!-- Nav bar mockup — full bleed -->
+				<div style="background-color: #0B0D10; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw;">
+					<nav style="display: flex; align-items: center; justify-content: space-between; padding: 16px 48px;">
+						<!-- Left: Wordmark -->
+						<img src="/provoque-wordmark.svg" alt="provoque" style="height: 20px; width: auto;" />
+
+						<!-- Right: CTA button -->
+						<button style="padding: 10px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; letter-spacing: 0.02em;">Join the waitlist</button>
+					</nav>
+				</div>
+
+				<!-- Spec notes -->
+				<div style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; line-height: 2; color: rgba(232,228,223,0.4);">
+					<p><span style="color: #AE0D46;">Wordmark:</span> AHQ vector, #E8E4DF, 20px height</p>
+					<p><span style="color: #AE0D46;">CTA:</span> Primary magenta #AE0D46, Inter 500, 8px radius</p>
+					<p><span style="color: #AE0D46;">Layout:</span> Flex space-between, 16px vertical / 48px horizontal padding</p>
+					<p><span style="color: #AE0D46;">Rule:</span> No nav links. Every link that isn't "sign up" is a leak.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	{/if}
+
+	{#if activeSection === 'lisbon'}
+	<div style="position: relative; min-height: 100vh; background-color: #0B0D10;">
+
+		<!-- Nav Bar — full bleed -->
+		<nav style="display: flex; align-items: center; justify-content: space-between; padding: 16px 48px;">
+			<img src="/provoque-wordmark.svg" alt="provoque" style="height: 32px; width: auto;" />
+			<button style="padding: 10px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; letter-spacing: 0.02em;">Join the waitlist</button>
+		</nav>
+
+		<!-- Hero Block — full-bleed image with text overlay -->
+		<div
+			style="position: relative; height: calc(100vh - 64px); overflow: hidden;"
+		>
+			<!-- Sophie — full bleed background -->
+			<img
+				src="/sandbox/girls/sophie-hero-wide.jpg"
+				alt="Sophie"
+				style="position: absolute; top: 50%; left: 50%; transform: translate(-46%, -51%) scale(1.40); max-width: none; height: 100%; pointer-events: none;"
+			/>
+
+			<!-- No overlay — Boss wants raw image -->
+
+			<!-- Text + Form overlay — right side -->
+			<div style="position: absolute; top: 0; right: 0; bottom: 0; width: 45%; display: flex; flex-direction: column; justify-content: center; padding: 0 clamp(32px, 4vw, 80px); z-index: 2;">
+
+				<!-- Headline -->
+				<h1 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: clamp(32px, 3.5vw, 64px); line-height: 1.15; color: #E8E4DF; margin-bottom: 24px;">
+					Finally, somebody<br/>who remembers.
+				</h1>
+
+				<!-- Subhead — beat copy -->
+				<p style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(16px, 1.4vw, 20px); color: #E8E4DF; opacity: 0.8; line-height: 1.8; margin-bottom: 32px;">
+					An AI girlfriend<br/>
+					who listens to you,<br/>
+					comes to know you,<br/>
+					and<br/>
+					never leaves you.
+				</p>
+
+				<!-- Email capture -->
+				<div style="display: flex; gap: 12px; max-width: 420px;">
+					<input
+						type="email"
+						placeholder="your email address"
+						style="flex: 1; padding: 12px 16px; background-color: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; outline: none;"
+					/>
+					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; letter-spacing: 0.02em;">Join the waitlist</button>
+				</div>
+			</div>
+
+			</div>
 	</div>
 	{/if}
 
