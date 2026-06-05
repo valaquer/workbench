@@ -5,8 +5,32 @@
 	let activeSection = $state(null);
 	let squircleCard;
 	let squirclePath = $state('');
+	let promiseCardPath = $state('');
 	let shimmerBtn1;
 	let shimmerBtn2;
+
+	const rosterGirls = [
+		// Row 1 (clipped top)
+		{ name: 'Yuna', age: 21, hearts: '9.1K', chats: '5.8M', bg: '#2D1F2E' },
+		{ name: 'Mila', age: 23, hearts: '12.4K', chats: '7.3M', bg: '#1F2D2E' },
+		{ name: 'Priya', age: 20, hearts: '10.7K', chats: '6.1M', bg: '#2E2D1F' },
+		{ name: 'Katya', age: 24, hearts: '11.3K', chats: '6.9M', bg: '#1F2E2A' },
+		// Row 2 (full — real girls)
+		{ name: 'Valentina', age: 22, hearts: '9.8K', chats: '5.4M', bg: '#2E1F27', img: '/valentina-add.jpg' },
+		{ name: 'Jiwoo', age: 21, hearts: '13.1K', chats: '8.2M', bg: '#2A1F2E', img: '/jiwoo-adq.jpg' },
+		{ name: 'Avery', age: 24, hearts: '10.2K', chats: '6.7M', bg: '#1F2E1F', img: '/avery-adx.jpg' },
+		{ name: 'Sophie', age: 24, hearts: '11.9K', chats: '7.1M', bg: '#2E261F', img: '/sophie-aeq.jpg' },
+		// Row 3 (full — real girls)
+		{ name: 'Sara', age: 23, hearts: '9.4K', chats: '5.6M', bg: '#2E2A1F', img: '/sara-afb.jpg' },
+		{ name: 'Nadia', age: 23, hearts: '12.8K', chats: '7.9M', bg: '#1F272E', img: '/nadia-afr.jpg' },
+		{ name: 'Hina', age: 22, hearts: '10.5K', chats: '6.3M', bg: '#2E1F1F', img: '/hina-age.jpg' },
+		{ name: 'Adaeze', age: 23, hearts: '11.6K', chats: '7.4M', bg: '#1F2E28', img: '/adaeze-agw.jpg' },
+		// Row 4 (clipped bottom)
+		{ name: 'Naomi', age: 22, hearts: '10.9K', chats: '6.5M', bg: '#2D2E1F' },
+		{ name: 'Zara', age: 21, hearts: '9.7K', chats: '5.9M', bg: '#1F2B2E' },
+		{ name: 'Aya', age: 20, hearts: '10.1K', chats: '6.2M', bg: '#2E1F25' },
+		{ name: 'Lena', age: 23, hearts: '11.2K', chats: '7.0M', bg: '#252E1F' },
+	];
 
 
 	function observeShimmer(el) {
@@ -50,6 +74,14 @@
 				cornerSmoothing: 0.6
 			});
 		}
+
+		// Promise block card squircle (200x356)
+		promiseCardPath = getSvgPath({
+			width: 200,
+			height: 356,
+			cornerRadius: 24,
+			cornerSmoothing: 0.6
+		});
 	});
 
 	$effect(() => {
@@ -659,6 +691,21 @@
 				<li>Duration guidelines (fast 0.2s, medium 0.6s, slow 1s+)</li>
 				<li>Reduced motion / prefers-reduced-motion fallback</li>
 			</ol>
+
+			<!-- Hover Expand — Photo Card (locked S12) -->
+			<div style="margin-top: 24px;">
+				<h3 style="font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.5rem; font-weight: 500; color: #E8E4DF; margin-bottom: 8px;">Hover Expand — Photo Card (locked)</h3>
+				<div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; line-height: 2.2; color: #E8E4DF;">
+					<p><span style="opacity: 0.4;">Property:</span> <span style="color: #AE0D46;">width</span> (aspect-ratio: 9/16 handles height)</p>
+					<p><span style="opacity: 0.4;">Resting:</span> 200px</p>
+					<p><span style="opacity: 0.4;">Hover:</span> 340px</p>
+					<p><span style="opacity: 0.4;">Expand:</span> 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)</p>
+					<p><span style="opacity: 0.4;">Collapse:</span> 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) — unhurried</p>
+					<p><span style="opacity: 0.4;">Corner:</span> border-radius: 24px (not clip-path — must animate)</p>
+					<p><span style="opacity: 0.4;">Overflow:</span> hidden, img at 102% with -1% offset (edge artifact fix)</p>
+					<p style="opacity: 0.6; font-size: 0.7rem; margin-top: 8px;">Width-based, not transform: scale. Card physically grows and pushes adjacent content. Collapse is slower than expand — "reluctant to leave" feel.</p>
+				</div>
+			</div>
 		</section>
 		{/if}
 
@@ -894,7 +941,213 @@
 			</div>
 
 			</div>
+
+		<!-- Block 2: The Promise — Memory Cascade -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+
+			<!-- Card 1 — left photo, right text -->
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
+				<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
+				<div>
+					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The big things.</h2>
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">How you felt in that meeting when your boss said that thing. How you felt when you were 7 when your dad did that thing.</p>
+				</div>
+			</div>
+
+			<!-- Card 2 — right photo, left text -->
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
+				<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
+				<div style="text-align: right;">
+					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The little things.</h2>
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">The dad jokes. The silly things. The things you say, the things you feel, the things that make you you.</p>
+				</div>
+			</div>
+
+			<!-- Card 3 — left photo, right text -->
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
+				<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
+				<div>
+					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The stories between you.</h2>
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">Those late night chats. The worlds you created. The monsters. The dragons.</p>
+				</div>
+			</div>
+
+			<!-- Card 4 — right photo, left text -->
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
+				<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
+				<div style="text-align: right;">
+					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How far you have come.</h2>
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">Remember that first awkward night? She does. And she smiles to herself when she does.</p>
+				</div>
+			</div>
+
+			<!-- Card 5 — left photo, right text -->
+			<div style="display: flex; align-items: center; gap: 48px;">
+				<div class="promise-photo" style="transform: rotate(-1deg);"><img src="/sophie-ajj.jpg" alt="" /></div>
+				<div>
+					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How proud she is of you.</h2>
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">That interview you cracked. That one time you pushed back. That time you said your piece. She remembers everything you ever told her.</p>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Block 3: Trust Bar — Frosted Glass Floating Card -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px) 80px;">
+			<div style="position: relative;">
+				<!-- Background radial glow for backdrop-blur to bite on -->
+				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.02) 0%, transparent 70%); pointer-events: none;"></div>
+				<!-- Glow div (layer 5 — directional overhead light) -->
+				<div style="position: absolute; top: -32px; left: -32px; width: 200px; height: 200px; background: radial-gradient(50% 50%, rgba(255,255,255,0.06) 0px, transparent 90%); pointer-events: none;"></div>
+				<!-- Card -->
+				<div style="
+					position: relative;
+					background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+					backdrop-filter: blur(12px);
+					-webkit-backdrop-filter: blur(12px);
+					border: 1px solid rgba(255,255,255,0.08);
+					border-top: 1px solid rgba(255,255,255,0.12);
+					box-shadow:
+						inset 0 1px 0 rgba(255,255,255,0.1),
+						rgba(0,0,0,0.2) 0 0 0 1px,
+						rgba(0,0,0,0.15) 0 1px 2px,
+						rgba(0,0,0,0.1) 0 4px 16px,
+						rgba(8,9,10,0.4) 0 16px 64px;
+					border-radius: 24px;
+					padding: clamp(32px, 4vw, 48px);
+					display: flex;
+					justify-content: space-between;
+					align-items: flex-start;
+					gap: 48px;
+				">
+					<!-- Pillar 1: Model Pinning -->
+					<div style="flex: 1 1 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6; margin-bottom: 12px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+						<h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: clamp(13px, 1.1vw, 15px); color: #E8E4DF; margin-bottom: 8px; letter-spacing: 0.02em; text-align: left; align-self: flex-start;">Model pinning</h3>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 0.85vw, 12.8px); color: #E8E4DF; opacity: 0.4; line-height: 1.6; text-align: left;">Dedicated model instance. Upstream provider updates never propagate to your session.</p>
+					</div>
+					<!-- Groove divider 1 -->
+					<div style="flex-shrink: 0; width: 1px; align-self: stretch; background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.4) 80%, transparent 100%); box-shadow: 1px 0 0 rgba(255,255,255,0.06);"></div>
+					<!-- Pillar 2: EU Compliance -->
+					<div style="flex: 1 1 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6; margin-bottom: 12px;"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+						<h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: clamp(13px, 1.1vw, 15px); color: #E8E4DF; margin-bottom: 8px; letter-spacing: 0.02em; text-align: left; white-space: nowrap; align-self: flex-start;">EU GDPR Art 17, 20 · DDG §5</h3>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 0.85vw, 12.8px); color: #E8E4DF; opacity: 0.4; line-height: 1.6; text-align: left;">Full erasure rights. Data portability. German Digital Services Act compliant.</p>
+					</div>
+					<!-- Groove divider 2 -->
+					<div style="flex-shrink: 0; width: 1px; align-self: stretch; background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.4) 80%, transparent 100%); box-shadow: 1px 0 0 rgba(255,255,255,0.06);"></div>
+					<!-- Pillar 3: Data Export -->
+					<div style="flex: 1 1 0; text-align: left; display: flex; flex-direction: column; align-items: flex-start;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6; margin-bottom: 12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+						<h3 style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: clamp(13px, 1.1vw, 15px); color: #E8E4DF; margin-bottom: 8px; letter-spacing: 0.02em; text-align: left; align-self: flex-start;">Full data export</h3>
+						<p style="font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 0.85vw, 12.8px); color: #E8E4DF; opacity: 0.4; line-height: 1.6; text-align: left;">One-click archive. All personal data, chat history, preferences and media.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Block 4: Roster Grid — Viewport-Clipped Infinite Grid -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+			<div style="display: grid; grid-template-columns: repeat(4, 200px); gap: 16px; justify-content: center;">
+				<!-- Row 1 (top 2/3 clipped — show bottom 1/3 only) -->
+				{#each rosterGirls.slice(0, 4) as girl}
+				<div style="overflow: hidden; display: flex; align-items: flex-end; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 100%); mask-image: linear-gradient(to bottom, transparent 0%, black 100%);">
+					<div style="aspect-ratio: 9/16; width: 100%; border-radius: 24px; overflow: hidden; background: {girl.bg}; position: relative; margin-top: -118.5%;">
+						<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
+							<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+								<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+								<span style="background: #10B981; color: #fff; font-family: 'Inter', system-ui, sans-serif; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.03em;">Online</span>
+							</div>
+							<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-bottom: 6px;">{girl.age} years old</div>
+							<div style="display: flex; align-items: center; gap: 10px;">
+								<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {girl.hearts}</span>
+								<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> {girl.chats}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				{/each}
+				<!-- Row 2 (full — real girls with photos) -->
+				{#each rosterGirls.slice(4, 8) as girl}
+				<div style="aspect-ratio: 9/16; border-radius: 24px; overflow: hidden; background: {girl.bg}; position: relative;">
+					{#if girl.img}<img src={girl.img} alt={girl.name} style="width: 102%; height: 102%; object-fit: cover; position: absolute; top: -1%; left: -1%;" />{/if}
+					<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
+						<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+							<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+							<span style="background: #10B981; color: #fff; font-family: 'Inter', system-ui, sans-serif; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.03em;">Online</span>
+						</div>
+						<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-bottom: 6px;">{girl.age} years old</div>
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {girl.hearts}</span>
+							<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> {girl.chats}</span>
+						</div>
+					</div>
+				</div>
+				{/each}
+				<!-- Row 3 (full — real girls with photos) -->
+				{#each rosterGirls.slice(8, 12) as girl}
+				<div style="aspect-ratio: 9/16; border-radius: 24px; overflow: hidden; background: {girl.bg}; position: relative;">
+					{#if girl.img}<img src={girl.img} alt={girl.name} style="width: 102%; height: 102%; object-fit: cover; position: absolute; top: -1%; left: -1%;" />{/if}
+					<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
+						<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+							<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+							<span style="background: #10B981; color: #fff; font-family: 'Inter', system-ui, sans-serif; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.03em;">Online</span>
+						</div>
+						<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-bottom: 6px;">{girl.age} years old</div>
+						<div style="display: flex; align-items: center; gap: 10px;">
+							<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {girl.hearts}</span>
+							<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> {girl.chats}</span>
+						</div>
+					</div>
+				</div>
+				{/each}
+				<!-- Row 4 (bottom 2/3 clipped — show top 1/3 only) -->
+				{#each rosterGirls.slice(12, 16) as girl}
+				<div style="overflow: hidden; display: flex; align-items: flex-start; -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%); mask-image: linear-gradient(to bottom, black 0%, transparent 100%);">
+					<div style="aspect-ratio: 9/16; width: 100%; border-radius: 24px; overflow: hidden; background: {girl.bg}; position: relative; margin-bottom: -118.5%;">
+						<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
+							<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+								<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+								<span style="background: #10B981; color: #fff; font-family: 'Inter', system-ui, sans-serif; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 10px; letter-spacing: 0.03em;">Online</span>
+							</div>
+							<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-bottom: 6px;">{girl.age} years old</div>
+							<div style="display: flex; align-items: center; gap: 10px;">
+								<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> {girl.hearts}</span>
+								<span style="display: flex; align-items: center; gap: 3px; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5;"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#E8E4DF" fill-opacity="0.5" stroke="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> {girl.chats}</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				{/each}
+			</div>
+		</div>
+
 	</div>
 	{/if}
 
 </div>
+
+<style>
+	.promise-photo {
+		flex-shrink: 0;
+		width: 200px;
+		aspect-ratio: 9 / 16;
+		border-radius: 24px;
+		overflow: hidden;
+		background: #0B0D10;
+		transition: width 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+		cursor: pointer;
+	}
+	.promise-photo:hover {
+		width: 340px;
+		transition: width 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+	}
+	.promise-photo img {
+		width: 102%;
+		height: 102%;
+		object-fit: cover;
+		position: relative;
+		top: -1%;
+		left: -1%;
+	}
+</style>
