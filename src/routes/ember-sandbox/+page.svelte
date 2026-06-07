@@ -1438,10 +1438,10 @@
 			</div>
 
 <!-- Block 2: The Promise — Memory Cascade -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 
 			<!-- Card 1 — left photo, right text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px;">
 				<div style="position: relative; flex-shrink: 0;">
 					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
 					<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
@@ -1453,7 +1453,7 @@
 			</div>
 
 			<!-- Card 2 — right photo, left text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px; flex-direction: row-reverse;">
 				<div style="position: relative; flex-shrink: 0;">
 					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
 					<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
@@ -1465,7 +1465,7 @@
 			</div>
 
 			<!-- Card 3 — left photo, right text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px;">
 				<div style="position: relative; flex-shrink: 0;">
 					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
 					<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
@@ -1477,7 +1477,7 @@
 			</div>
 
 			<!-- Card 4 — right photo, left text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px; flex-direction: row-reverse;">
 				<div style="position: relative; flex-shrink: 0;">
 					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
 					<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
@@ -1580,7 +1580,7 @@
 		</div>
 
 <!-- Block 4: Trust Bar — Frosted Glass Floating Card -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 			<div style="position: relative;">
 				<!-- Background radial glow for backdrop-blur to bite on -->
 				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.02) 0%, transparent 70%); pointer-events: none;"></div>
@@ -1703,7 +1703,7 @@
 		</div>
 
 <!-- Block 6: Roster Grid — Viewport-Clipped Infinite Grid -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 			<div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
 				<!-- Row 1 (top 2/3 clipped — show bottom 1/3 only) -->
 				<div style="display: flex; gap: 16px; justify-content: center;">
@@ -1907,10 +1907,10 @@
 		</div>
 
 <!-- Block 8: Final CTA + Footer -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px) 0;">
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px) 0;">
 
 			<!-- Final CTA -->
-			<div style="text-align: center; margin-bottom: 80px;">
+			<div style="text-align: center; margin-bottom: 48px;">
 				<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 16px;">Ready to meet her?</h2>
 				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.6; margin-bottom: 32px;">She's waiting.</p>
 				<div style="display: flex; gap: 12px; max-width: 420px; margin: 0 auto;">
