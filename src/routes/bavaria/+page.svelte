@@ -53,10 +53,12 @@
 
 	let ids = $derived(allIds.filter(id => {
 		if (filterReview !== 'intermediate' && votes[id] === 'intermediate') return false;
+		if (filterReview !== 'archived' && votes[id] === 'archived') return false;
 		if (filterReview === 'accepted' && votes[id] !== 'approved') return false;
 		if (filterReview === 'rejected' && votes[id] !== 'rejected') return false;
 		if (filterReview === 'pending' && votes[id]) return false;
 		if (filterReview === 'intermediate' && votes[id] !== 'intermediate') return false;
+		if (filterReview === 'archived' && votes[id] !== 'archived') return false;
 		const m = meta[id];
 		if (!m) return !filterCharacter && !filterDeployment;
 		if (filterCharacter && m.characterName !== filterCharacter) return false;
@@ -130,6 +132,7 @@
 </script>
 
 {#snippet voteButtons(id: string, size: 'sm' | 'lg')}
+	{#if votes[id] === 'intermediate' || votes[id] === 'archived'}{:else}
 	{@const w = size === 'sm' ? 'w-4 h-4' : 'w-6 h-6'}
 	{@const iconCheck = size === 'sm' ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'}
 	{@const iconX = size === 'sm' ? 'w-2 h-2' : 'w-3 h-3'}
@@ -149,6 +152,7 @@
 	>
 		<svg class="{iconX}" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
 	</button>
+	{/if}
 {/snippet}
 
 {#snippet imageCard(id: string)}
@@ -206,7 +210,7 @@
 				</select>
 			{/if}
 			<div class="flex" role="radiogroup" aria-label="Review status">
-				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}, {v: 'intermediate', l: 'Intermediate'}] as item, i}
+				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}, {v: 'intermediate', l: 'Intermediate'}, {v: 'archived', l: 'Archived'}] as item, i}
 					<button
 						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterReview === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
 						onclick={() => setFilterReview(item.v)}
