@@ -185,6 +185,66 @@
 		};
 	}
 
+	function rulerTool(node) {
+		let posA = 200, posB = 400;
+		let dragging = null;
+
+		// Create ruler A
+		const rulerA = document.createElement('div');
+		rulerA.style.cssText = 'position: fixed; top: 200px; left: 0; right: 0; z-index: 9999; cursor: ns-resize; user-select: none; pointer-events: auto;';
+		rulerA.innerHTML = '<div style="height: 1px; background: #00FF88; box-shadow: 0 0 4px #00FF88;"></div><span style="position: absolute; left: 12px; top: 4px; font-family: JetBrains Mono, monospace; font-size: 11px; color: #00FF88; background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; pointer-events: none;">A: 200px</span>';
+
+		// Create ruler B
+		const rulerB = document.createElement('div');
+		rulerB.style.cssText = 'position: fixed; top: 400px; left: 0; right: 0; z-index: 9999; cursor: ns-resize; user-select: none; pointer-events: auto;';
+		rulerB.innerHTML = '<div style="height: 1px; background: #FF6B00; box-shadow: 0 0 4px #FF6B00;"></div><span style="position: absolute; left: 12px; top: 4px; font-family: JetBrains Mono, monospace; font-size: 11px; color: #FF6B00; background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; pointer-events: none;">B: 400px</span>';
+
+		// Distance readout
+		const distEl = document.createElement('div');
+		distEl.style.cssText = 'position: fixed; right: 12px; top: 12px; z-index: 9999; font-family: JetBrains Mono, monospace; font-size: 13px; color: #E8E4DF; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); pointer-events: none;';
+
+		document.body.appendChild(rulerA);
+		document.body.appendChild(rulerB);
+		document.body.appendChild(distEl);
+
+		function updateLabels() {
+			const scrollY = window.scrollY;
+			const absA = Math.round(posA + scrollY);
+			const absB = Math.round(posB + scrollY);
+			rulerA.querySelector('span').textContent = `A: ${absA}px`;
+			rulerB.querySelector('span').textContent = `B: ${absB}px`;
+			distEl.textContent = `Δ ${Math.abs(absB - absA)}px`;
+		}
+
+		rulerA.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = 'a'; });
+		rulerB.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = 'b'; });
+
+		function onMouseMove(e) {
+			if (!dragging) return;
+			const y = Math.max(0, Math.min(e.clientY, window.innerHeight));
+			if (dragging === 'a') { posA = y; rulerA.style.top = y + 'px'; }
+			else { posB = y; rulerB.style.top = y + 'px'; }
+			updateLabels();
+		}
+		function onMouseUp() { dragging = null; }
+
+		window.addEventListener('mousemove', onMouseMove);
+		window.addEventListener('mouseup', onMouseUp);
+		window.addEventListener('scroll', updateLabels);
+		updateLabels();
+
+		return {
+			destroy() {
+				window.removeEventListener('mousemove', onMouseMove);
+				window.removeEventListener('mouseup', onMouseUp);
+				window.removeEventListener('scroll', updateLabels);
+				rulerA.remove();
+				rulerB.remove();
+				distEl.remove();
+			}
+		};
+	}
+
 	function shimmerAction(node) {
 		const shimmerDiv = node.querySelector('[data-shimmer]');
 		if (!shimmerDiv) return;
@@ -1951,6 +2011,9 @@
 				</g>
 			</svg>
 		</div>
+
+		<!-- Draggable Rulers -->
+		<div use:rulerTool style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; pointer-events: none;"></div>
 
 	</div>
 	{/if}
