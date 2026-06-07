@@ -1563,7 +1563,7 @@
 		</div>
 
 <!-- Block 3: Chat Vignette — Sophie Phone (Need 1: Memory) — Scroll-Locked -->
-		<div use:sophieScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+		<div use:sophieScrollLock style="min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding-top: 48px;">
 			<div class="vignette-glow-pulse" style="
 				width: 100%;
 				max-width: 320px;
