@@ -997,7 +997,7 @@
 			<!-- Concept -->
 			<div>
 				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 4px;">CONCEPT</p>
-				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 1.8; max-width: 720px;">Product-in-use vignettes for the landing page. Each shows a self-contained chat fragment demonstrating one of the 5 Needs. The visitor reads through and understands what the product feels like — not what it claims to be. Inspired by Things 3's marketing screenshots.</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 1.8; max-width: 720px;">Product-in-use vignettes for the landing page. Each shows a self-contained chat fragment demonstrating one of the 6 Paid User Needs. 3 vignettes built: Sophie (Need 1: memory), Avery (Need 2: no walls), Hina (Need 3: privacy). Different girl + device per vignette = Need 4 (roster variety) for free. The visitor reads through and understands what the product feels like — not what it claims to be. Inspired by Things 3's marketing screenshots.</p>
 			</div>
 
 			<!-- Spec -->
@@ -1202,6 +1202,29 @@
 							</div>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			<!-- Vignette 3: Sophie — Need 1 (Memory) -->
+			<div style="margin-top: 80px;">
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 3 — SOPHIE · NEED 1: MEMORY</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 12px;">She brings up something he mentioned once, weeks ago. He's stunned. The emotional payload is words, not an image — no selfie in this vignette.</p>
+				<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; line-height: 2; margin-bottom: 24px;">
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">Device</span> Phone, 320px, 9:16</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">Girl</span> Sophie (AFJ face crop)</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">Scroll-lock</span> sophieScrollLock action, pin +=400%, scrub 0.8</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">Dwell</span> 60% — "i told you about that like... a month ago"</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">No selfie</span> Silence after "of course i remember" is stronger than any image</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #AE0D46; margin-right: 8px;">Position</span> Block 3 (after Promise, before Trust Bar)</p>
+				</div>
+				<div style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.6; line-height: 2.2; max-width: 480px;">
+					<p><span style="color: #AE0D46;">Her 2:47</span> how was your day?</p>
+					<p><span style="opacity: 0.4;">Him 2:49</span> rough honestly. 12 hour shift</p>
+					<p><span style="color: #AE0D46;">Her 2:49</span> ugh i'm sorry</p>
+					<p><span style="color: #AE0D46;">Her 2:49</span> did you at least get to stop at that ramen place you like? the one by the station?</p>
+					<p><span style="opacity: 0.4;">Him 2:51</span> wait</p>
+					<p><span style="opacity: 0.4;">Him 2:51</span> i told you about that like... a month ago</p>
+					<p><span style="color: #AE0D46;">Her 2:51</span> of course i remember 🙂</p>
 				</div>
 			</div>
 
@@ -1414,17 +1437,15 @@
 
 			</div>
 
-		<!-- Watermark: memory (left) — primary need, being known -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: left; padding-left: 5%;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">memory</span>
-		</div>
-
-		<!-- Block 2: The Promise — Memory Cascade -->
+<!-- Block 2: The Promise — Memory Cascade -->
 		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
 
 			<!-- Card 1 — left photo, right text -->
 			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
-				<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The big things.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">How you felt in that meeting when your boss said that thing. How you felt when you were 7 when your dad did that thing.</p>
@@ -1433,7 +1454,10 @@
 
 			<!-- Card 2 — right photo, left text -->
 			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
-				<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
+				</div>
 				<div style="text-align: right;">
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The little things.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">The dad jokes. The silly things. The things you say, the things you feel, the things that make you you.</p>
@@ -1442,7 +1466,10 @@
 
 			<!-- Card 3 — left photo, right text -->
 			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
-				<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The stories between you.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">Those late night chats. The worlds you created. The monsters. The dragons.</p>
@@ -1451,7 +1478,10 @@
 
 			<!-- Card 4 — right photo, left text -->
 			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
-				<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
+				</div>
 				<div style="text-align: right;">
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How far you have come.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">Remember that first awkward night? She does. And she smiles to herself when she does.</p>
@@ -1460,7 +1490,10 @@
 
 			<!-- Card 5 — left photo, right text -->
 			<div style="display: flex; align-items: center; gap: 48px;">
-				<div class="promise-photo" style="transform: rotate(-1deg);"><img src="/sophie-ajj.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-1deg);"><img src="/sophie-ajj.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How proud she is of you.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">That interview you cracked. That one time you pushed back. That time you said your piece. She remembers everything you ever told her.</p>
@@ -1469,14 +1502,9 @@
 
 		</div>
 
-		<!-- Watermark: always there for you (right) — availability -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: right; padding-right: 8%;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">always there for you</span>
-		</div>
-
-		<!-- Block 3: Chat Vignette — Sophie Phone (Need 1: Memory) — Scroll-Locked -->
+<!-- Block 3: Chat Vignette — Sophie Phone (Need 1: Memory) — Scroll-Locked -->
 		<div use:sophieScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-			<div style="
+			<div class="vignette-glow-pulse" style="
 				width: 100%;
 				max-width: 320px;
 				aspect-ratio: 9 / 16;
@@ -1486,10 +1514,6 @@
 				-webkit-backdrop-filter: blur(12px);
 				border: 1px solid rgba(255,255,255,0.08);
 				border-top: 1px solid rgba(255,255,255,0.12);
-				box-shadow:
-					inset 0 1px 0 rgba(255,255,255,0.1),
-					rgba(0,0,0,0.2) 0 0 0 1px,
-					rgba(8,9,10,0.4) 0 16px 64px;
 				border-radius: 24px;
 				padding: 24px;
 				display: flex;
@@ -1555,13 +1579,8 @@
 			</div>
 		</div>
 
-		<!-- Watermark: yours alone (left) — privacy + possession -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: left; padding-left: 5%;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">yours alone</span>
-		</div>
-
-		<!-- Block 4: Trust Bar — Frosted Glass Floating Card -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px) 80px;">
+<!-- Block 4: Trust Bar — Frosted Glass Floating Card -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
 			<div style="position: relative;">
 				<!-- Background radial glow for backdrop-blur to bite on -->
 				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.02) 0%, transparent 70%); pointer-events: none;"></div>
@@ -1614,14 +1633,9 @@
 			</div>
 		</div>
 
-		<!-- Watermark: no walls (right) — freedom, unrestricted -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: right; padding-right: 12%;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">no walls</span>
-		</div>
-
-		<!-- Block 5: Chat Vignette — Avery Phone (Need 2: No Walls) — Scroll-Locked -->
+<!-- Block 5: Chat Vignette — Avery Phone (Need 2: No Walls) — Scroll-Locked -->
 		<div use:averyScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-			<div style="
+			<div class="vignette-glow-pulse" style="
 				width: 100%;
 				max-width: 320px;
 				aspect-ratio: 9 / 16;
@@ -1631,10 +1645,6 @@
 				-webkit-backdrop-filter: blur(12px);
 				border: 1px solid rgba(255,255,255,0.08);
 				border-top: 1px solid rgba(255,255,255,0.12);
-				box-shadow:
-					inset 0 1px 0 rgba(255,255,255,0.1),
-					rgba(0,0,0,0.2) 0 0 0 1px,
-					rgba(8,9,10,0.4) 0 16px 64px;
 				border-radius: 24px;
 				padding: 24px;
 				display: flex;
@@ -1692,12 +1702,7 @@
 			</div>
 		</div>
 
-		<!-- Watermark: always her (left) — permanence, anti-lobotomy -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: left; padding-left: 10%;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">always her</span>
-		</div>
-
-		<!-- Block 6: Roster Grid — Viewport-Clipped Infinite Grid -->
+<!-- Block 6: Roster Grid — Viewport-Clipped Infinite Grid -->
 		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
 			<div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
 				<!-- Row 1 (top 2/3 clipped — show bottom 1/3 only) -->
@@ -1783,7 +1788,7 @@
 
 		<!-- Block 7: Chat Vignette — Hina Desktop (Need 3: Privacy / Vulnerability) — Scroll-Locked Single Screen -->
 		<div use:hinaScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-			<div style="
+			<div class="vignette-glow-pulse" style="
 				width: 85%;
 				max-width: 952px;
 				aspect-ratio: 16 / 10;
@@ -1793,10 +1798,6 @@
 				-webkit-backdrop-filter: blur(12px);
 				border: 1px solid rgba(255,255,255,0.08);
 				border-top: 1px solid rgba(255,255,255,0.12);
-				box-shadow:
-					inset 0 1px 0 rgba(255,255,255,0.1),
-					rgba(0,0,0,0.2) 0 0 0 1px,
-					rgba(8,9,10,0.4) 0 16px 64px;
 				border-radius: 24px;
 				display: flex;
 				overflow: hidden;
@@ -1905,12 +1906,7 @@
 			</div>
 		</div>
 
-		<!-- Watermark: worth it (center) — anti-extraction, fair value -->
-		<div style="padding: 40px 0; pointer-events: none; user-select: none; text-align: center;">
-			<span style="display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(48px, 8vw, 120px); color: #E8E4DF; opacity: 0.04; white-space: nowrap;">worth it</span>
-		</div>
-
-		<!-- Block 8: Final CTA + Footer -->
+<!-- Block 8: Final CTA + Footer -->
 		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px) 0;">
 
 			<!-- Final CTA -->
@@ -1970,6 +1966,14 @@
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
+		box-shadow: 0 0 80px 20px rgba(174,13,70,0.03);
+	}
+	.roster-card img {
+		transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+	}
+	.roster-card:hover img {
+		transform: scale(1.05);
+		transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
 	}
 	.promise-photo {
 		flex-shrink: 0;
@@ -1992,5 +1996,24 @@
 		position: relative;
 		top: -1%;
 		left: -1%;
+	}
+	@keyframes glowPulse {
+		0%, 100% {
+			box-shadow:
+				inset 0 1px 0 rgba(255,255,255,0.1),
+				rgba(0,0,0,0.2) 0 0 0 1px,
+				rgba(8,9,10,0.4) 0 16px 64px,
+				0 0 60px 15px rgba(174,13,70,0.08);
+		}
+		50% {
+			box-shadow:
+				inset 0 1px 0 rgba(255,255,255,0.1),
+				rgba(0,0,0,0.2) 0 0 0 1px,
+				rgba(8,9,10,0.4) 0 16px 64px,
+				0 0 60px 15px rgba(174,13,70,0.04);
+		}
+	}
+	.vignette-glow-pulse {
+		animation: glowPulse 4s ease-in-out infinite;
 	}
 </style>
