@@ -300,7 +300,7 @@
 
 	onMount(() => {
 		// Restore persisted section
-		const saved = localStorage.getItem('ember-sandbox-section');
+		const saved = localStorage.getItem('styleguide-section');
 		if (saved) activeSection = saved;
 
 		// Squircle path calc
@@ -325,9 +325,9 @@
 
 	$effect(() => {
 		if (activeSection) {
-			localStorage.setItem('ember-sandbox-section', activeSection);
+			localStorage.setItem('styleguide-section', activeSection);
 		} else {
-			localStorage.removeItem('ember-sandbox-section');
+			localStorage.removeItem('styleguide-section');
 		}
 		if (activeSection === 'buttons') {
 			// Delay to let DOM render
