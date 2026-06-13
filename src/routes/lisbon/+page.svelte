@@ -113,3 +113,6 @@
 
 <!-- Block 10: Footer + CTA + Watermark -->
 <Footer />
+
+<!-- Cache code — bottom of page, near-invisible -->
+<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 12.8px; opacity: 0.2; text-align: center; padding: 8px 0;">H5G</p>

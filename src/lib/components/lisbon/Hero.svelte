@@ -1,8 +1,5 @@
 <script lang="ts">
 	import EmailCapture from './EmailCapture.svelte';
-	import { onMount } from 'svelte';
-	let vw = $state('');
-	onMount(() => { vw = String(window.innerWidth); });
 </script>
 
 <section class="hero">
@@ -34,7 +31,6 @@
 		</p>
 
 		<EmailCapture id="hero" />
-		<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 14px; margin-top: 12px;">Cache Code: H5F | vw:{vw}</p>
 	</div>
 </section>
 
