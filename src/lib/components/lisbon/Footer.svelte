@@ -1,19 +1,6 @@
-<script lang="ts">
-	import EmailCapture from './EmailCapture.svelte';
-</script>
-
-<!-- Final CTA -->
-<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px) 0;">
-	<div style="text-align: center; margin-bottom: 80px;">
-		<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 16px;">Ready to meet her?</h2>
-		<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.6; margin-bottom: 32px;">She's waiting.</p>
-		<div class="footer-form-wrapper">
-			<EmailCapture id="footer" />
-		</div>
-	</div>
-
-	<!-- Footer links -->
-	<div style="display: flex; justify-content: center; gap: 32px; margin-bottom: 48px; flex-wrap: wrap;">
+<!-- Footer links -->
+<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px) 48px;">
+	<div style="display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;">
 		<a href="/impressum" style="font-family: 'JetBrains Mono', monospace; font-size: 12.8px; color: #E8E4DF; opacity: 0.4; text-decoration: none;">Legal Notice <span style="opacity: 0.6;">(Impressum)</span></a>
 		<a href="mailto:hello@provoque.ai" style="font-family: 'JetBrains Mono', monospace; font-size: 12.8px; color: #E8E4DF; opacity: 0.4; text-decoration: none;">Contact <span style="opacity: 0.6;">(Kontakt)</span></a>
 		<a href="/privacy" style="font-family: 'JetBrains Mono', monospace; font-size: 12.8px; color: #E8E4DF; opacity: 0.4; text-decoration: none;">Privacy <span style="opacity: 0.6;">(Datenschutz)</span></a>
@@ -35,17 +22,3 @@
 		</g>
 	</svg>
 </div>
-
-<style>
-	.footer-form-wrapper {
-		max-width: 420px;
-		margin: 0 auto;
-	}
-
-	@media (max-width: 768px) {
-		.footer-form-wrapper {
-			max-width: 100%;
-		}
-	}
-
-</style>

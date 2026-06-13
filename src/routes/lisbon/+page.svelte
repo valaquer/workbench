@@ -6,6 +6,7 @@
 	import RosterGrid from '$lib/components/lisbon/RosterGrid.svelte';
 	import SpotlightSection from '$lib/components/lisbon/SpotlightSection.svelte';
 	import Footer from '$lib/components/lisbon/Footer.svelte';
+	import FoundingMember from '$lib/components/lisbon/FoundingMember.svelte';
 	import TrustFAQ from '$lib/components/lisbon/TrustFAQ.svelte';
 
 	import { promiseCards } from '$lib/data/promise-cards';
@@ -106,13 +107,11 @@
 <!-- Block 9.5: Trust FAQ -->
 <TrustFAQ />
 
-<!-- Gradient rule divider -->
-<div style="padding: 80px 0;">
-	<div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);"></div>
-</div>
+<!-- Block 10: Founding Member CTA -->
+<FoundingMember />
 
-<!-- Block 10: Footer + CTA + Watermark -->
+<!-- Footer: Links + Watermark -->
 <Footer />
 
 <!-- Cache code — bottom of page, near-invisible -->
-<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 12.8px; opacity: 0.2; text-align: center; padding: 8px 0;">H5G</p>
+<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 12.8px; opacity: 0.2; text-align: center; padding: 8px 0;">5BO</p>

@@ -1,5 +1,9 @@
 <script lang="ts">
 	import EmailCapture from './EmailCapture.svelte';
+	import FlipCounter from './FlipCounter.svelte';
+	import { getFoundingCount } from '$lib/utils/founding-counter';
+
+	const claimedCount = getFoundingCount();
 </script>
 
 <section class="hero">
@@ -31,6 +35,11 @@
 		</p>
 
 		<EmailCapture id="hero" />
+	</div>
+
+	<!-- Counter pinned lower in hero, outside the centered flex -->
+	<div class="hero-counter-wrap">
+		<FlipCounter value={claimedCount} total={500} label="Founding Member spots claimed" />
 	</div>
 </section>
 
@@ -84,6 +93,15 @@
 		margin-bottom: 32px;
 	}
 
+	.hero-counter-wrap {
+		position: absolute;
+		bottom: 28px;
+		right: 0;
+		width: 45%;
+		padding: 0 clamp(32px, 4vw, 80px);
+		z-index: 2;
+	}
+
 	@media (max-width: 768px) {
 		.hero {
 			height: auto;
@@ -109,6 +127,14 @@
 			width: 100%;
 			padding: 24px;
 			text-align: center;
+		}
+
+		.hero-counter-wrap {
+			position: relative;
+			bottom: auto;
+			right: auto;
+			width: 100%;
+			padding: 16px 24px;
 		}
 	}
 </style>
