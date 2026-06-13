@@ -38,10 +38,26 @@
 	font-display: swap;
 }
 
-/* Google Fonts — Cormorant Garamond (kept for reference) + Inter + JetBrains Mono */
+/* Google Fonts — Cormorant Garamond + Inter + JetBrains Mono (production weights) */
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400;500;800&display=swap');
+
+/* iA Writer Quattro — production path (also at /fonts/ia-writer-quattro/) */
+@font-face {
+	font-family: 'iA Writer Quattro';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/iAWriterQuattroV.ttf') format('truetype');
+}
+@font-face {
+	font-family: 'iA Writer Quattro';
+	font-style: italic;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/iAWriterQuattroV-Italic.ttf') format('truetype');
+}
 
 /**
  * Honeybloom Design System — Updated Feb 27, 2026
@@ -132,6 +148,16 @@
 	--color-magenta: #AE0D46;   /* "our sophie magenta" — Sophie accent */
 	--color-emerald: #10B981;   /* "our emerald" — business accent */
 	--color-cream: #F5F0E6;     /* "our text cream" — text/surfaces */
+
+	/* Production Lisbon theme vars */
+	--color-bg: #0B0D10;
+	--color-text: #E8E4DF;
+	--color-accent: #AE0D46;
+	--color-online: #10B981;
+	--font-cormorant: 'Cormorant Garamond', serif;
+	--font-inter: 'Inter', sans-serif;
+	--font-jetbrains: 'JetBrains Mono', monospace;
+	--font-ia-writer: 'iA Writer Quattro', monospace;
 
 	/* Letter-spacing (D04) */
 	--ls-display: -0.03em;
