@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-	<title>Provoque AI — Finally, Somebody Who Remembers</title>
+	<title>Provoque AI — Finally, somebody who remembers.</title>
 	<meta name="description" content="An AI girlfriend who listens to you, comes to know you, and never leaves you. No content filters. No memory wipes. Join the waitlist." />
 </svelte:head>
 
