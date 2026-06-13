@@ -6,6 +6,7 @@
 	import RosterGrid from '$lib/components/lisbon/RosterGrid.svelte';
 	import SpotlightSection from '$lib/components/lisbon/SpotlightSection.svelte';
 	import Footer from '$lib/components/lisbon/Footer.svelte';
+	import TrustFAQ from '$lib/components/lisbon/TrustFAQ.svelte';
 
 	import { promiseCards } from '$lib/data/promise-cards';
 	import { sophieMessages, averyMessages, hinaMessages } from '$lib/data/conversations';
@@ -85,7 +86,7 @@
 
 <!-- Block 5: Chapter Header -->
 <div style="text-align: center; padding: 80px clamp(24px, 4vw, 48px);">
-	<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(36px, 4vw, 56px); color: #E8E4DF;">No Walls.<br class="md:hidden" /> No Apologies.</h2>
+	<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF;">No Walls.<br class="md:hidden" /> No Apologies.</h2>
 	<p style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(18px, 2vw, 24px); color: #E8E4DF; opacity: 0.8; margin-top: 16px; line-height: 1.7;">Different faces. Different stories.<br class="md:hidden" /> No content filters between you and any of them.</p>
 </div>
 
@@ -96,6 +97,19 @@
 {#each spotlightGirls as girl}
 	<SpotlightSection {girl} />
 {/each}
+
+<!-- Gradient rule divider -->
+<div style="padding: 80px 0;">
+	<div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);"></div>
+</div>
+
+<!-- Block 9.5: Trust FAQ -->
+<TrustFAQ />
+
+<!-- Gradient rule divider -->
+<div style="padding: 80px 0;">
+	<div style="height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);"></div>
+</div>
 
 <!-- Block 10: Footer + CTA + Watermark -->
 <Footer />

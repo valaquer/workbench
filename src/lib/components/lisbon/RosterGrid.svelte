@@ -66,7 +66,7 @@
 		<div class="roster-card" use:squircleClip={24}>
 			{#if girl.img}<picture><source srcset={girl.img.replace(/\.jpg$/, '.avif')} type="image/avif" /><img src={girl.img} alt={girl.name} style="width: 102%; height: 102%; object-fit: cover; position: absolute; top: -1%; left: -1%;" /></picture>{/if}
 			<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
-				<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+				<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: clamp(16px, 1.4vw, 20px); color: #E8E4DF;">{girl.name}</span>
 				<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-top: 3px;">{girl.age} years old</div>
 			</div>
 		</div>
@@ -94,7 +94,7 @@
 		<div class="roster-card" use:squircleClip={24}>
 			{#if girl.img}<picture><source srcset={girl.img.replace(/\.jpg$/, '.avif')} type="image/avif" /><img src={girl.img} alt={girl.name} style="width: 102%; height: 102%; object-fit: cover; position: absolute; top: -1%; left: -1%;" /></picture>{/if}
 			<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 14px 12px; background: linear-gradient(transparent, rgba(0,0,0,0.35));">
-				<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 18px; color: #E8E4DF;">{girl.name}</span>
+				<span style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: clamp(16px, 1.4vw, 20px); color: #E8E4DF;">{girl.name}</span>
 				<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 11px; color: #E8E4DF; opacity: 0.5; margin-top: 3px;">{girl.age} years old</div>
 			</div>
 		</div>
