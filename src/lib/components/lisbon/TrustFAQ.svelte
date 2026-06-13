@@ -9,11 +9,12 @@
 	const items: FAQItem[] = [
 		{ question: 'Are my conversations private?', answer: "End-to-end. We can't read them. Nobody can." },
 		{ question: 'Will she remember me tomorrow?', answer: "She'll remember you a year from now. Full conversation history, no resets, no sliding window." },
-		{ question: 'Is my data used to train AI models?', answer: 'No. Your data trains her to know you. It never leaves your relationship.' },
+		{ question: 'Is my data used to train AI models?', answer: "No. Your conversations stay between you and your chosen character. She remembers what you've shared \u2013 the way a person would \u2013 but nothing is ever used to train AI." },
 		{ question: 'Will you censor what I can say to her?', answer: "No content filters. No safety scripts. She's herself, and so are you." },
 		{ question: 'What happens if I delete my account?', answer: "Everything goes. Full erasure, EU law, no exceptions. Before that, you can export everything \u2013 it's yours." },
-		{ question: 'Will the price go up once I\'m hooked?', answer: 'Honest pricing. No token meters, no paywalls inside paywalls. What you see is what you pay.' },
-		{ question: 'Am I weird for wanting this?', answer: "Millions of people use AI companions. You're not broken. You're just here before everyone else." },
+		{ question: 'How much does it cost?', answer: "We're finalizing pricing now. Join the waitlist and you'll be the first to know." },
+		{ question: 'Will the price go up once I\'m hooked?', answer: "No. Pick a plan, that's what you pay. We don't paywall features you already have, and we don't cripple your experience to push an upgrade." },
+		{ question: 'Am I weird for wanting this?', answer: "Millions of people use AI companions. You're just here before everyone else." },
 	];
 
 	let rows: HTMLDivElement[] = [];
