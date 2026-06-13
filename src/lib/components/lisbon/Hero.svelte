@@ -34,7 +34,7 @@
 		</p>
 
 		<EmailCapture id="hero" />
-		<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 14px; margin-top: 12px;">Cache Code: H4P | vw:{vw}</p>
+		<p style="color: #E8E4DF; font-family: Inter, sans-serif; font-size: 14px; margin-top: 12px;">Cache Code: H4Q | vw:{vw}</p>
 	</div>
 </section>
 
