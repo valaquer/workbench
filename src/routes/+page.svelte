@@ -19,8 +19,8 @@
 				</a>
 			</li>
 			<li>
-				<a href="/style-guide" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/style-guide
+				<a href="/styleguide" class="text-body text-cream/70 hover:text-cream transition-colors">
+					/styleguide
 				</a>
 			</li>
 			<li>

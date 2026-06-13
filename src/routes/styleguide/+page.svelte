@@ -135,6 +135,116 @@
 		};
 	}
 
+	function sophieScrollLock(node) {
+		let tl;
+
+		const timer = setTimeout(() => {
+			gsap.registerPlugin(ScrollTrigger);
+
+			const chatViewport = node.querySelector('.sophie-chat-viewport');
+			const chatContent = node.querySelector('.sophie-chat-content');
+
+			if (!chatViewport || !chatContent) return;
+
+			const viewportHeight = chatViewport.offsetHeight;
+			const contentHeight = chatContent.scrollHeight;
+			const maxScroll = Math.max(0, contentHeight - viewportHeight);
+
+			if (maxScroll <= 0) return;
+
+			tl = gsap.timeline({
+				scrollTrigger: {
+					trigger: node,
+					pin: true,
+					start: 'top top',
+					end: '+=400%',
+					scrub: 0.8,
+				}
+			});
+
+			// Dwell at start — visitor sees phone, reads first messages
+			tl.to({}, { duration: 0.5 });
+			// Scroll to "i told you about that like... a year ago?!" (~60%)
+			tl.to(chatContent, { y: -(maxScroll * 0.6), duration: 1.5, ease: 'none' });
+			// Dwell — his surprise hangs in the air
+			tl.to({}, { duration: 0.6 });
+			// Scroll to "of course i remember"
+			tl.to(chatContent, { y: -maxScroll, duration: 1.5, ease: 'none' });
+			// Force stop — hold before releasing
+			tl.to({}, { duration: 0.8 });
+		}, 200);
+
+		return {
+			destroy() {
+				clearTimeout(timer);
+				if (tl) {
+					tl.scrollTrigger?.kill();
+					tl.kill();
+				}
+			}
+		};
+	}
+
+	function rulerTool(node) {
+		let posA = 200, posB = 400;
+		let dragging = null;
+
+		// Create ruler A
+		const rulerA = document.createElement('div');
+		rulerA.style.cssText = 'position: fixed; top: 200px; left: 0; right: 0; z-index: 9999; cursor: ns-resize; user-select: none; pointer-events: auto;';
+		rulerA.innerHTML = '<div style="height: 1px; background: #00FF88; box-shadow: 0 0 4px #00FF88;"></div><span style="position: absolute; left: 12px; top: 4px; font-family: JetBrains Mono, monospace; font-size: 11px; color: #00FF88; background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; pointer-events: none;">A: 200px</span>';
+
+		// Create ruler B
+		const rulerB = document.createElement('div');
+		rulerB.style.cssText = 'position: fixed; top: 400px; left: 0; right: 0; z-index: 9999; cursor: ns-resize; user-select: none; pointer-events: auto;';
+		rulerB.innerHTML = '<div style="height: 1px; background: #FF6B00; box-shadow: 0 0 4px #FF6B00;"></div><span style="position: absolute; left: 12px; top: 4px; font-family: JetBrains Mono, monospace; font-size: 11px; color: #FF6B00; background: rgba(0,0,0,0.7); padding: 2px 6px; border-radius: 4px; pointer-events: none;">B: 400px</span>';
+
+		// Distance readout
+		const distEl = document.createElement('div');
+		distEl.style.cssText = 'position: fixed; right: 12px; top: 12px; z-index: 9999; font-family: JetBrains Mono, monospace; font-size: 13px; color: #E8E4DF; background: rgba(0,0,0,0.85); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); pointer-events: none;';
+
+		document.body.appendChild(rulerA);
+		document.body.appendChild(rulerB);
+		document.body.appendChild(distEl);
+
+		function updateLabels() {
+			const scrollY = window.scrollY;
+			const absA = Math.round(posA + scrollY);
+			const absB = Math.round(posB + scrollY);
+			rulerA.querySelector('span').textContent = `A: ${absA}px`;
+			rulerB.querySelector('span').textContent = `B: ${absB}px`;
+			distEl.textContent = `Δ ${Math.abs(absB - absA)}px`;
+		}
+
+		rulerA.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = 'a'; });
+		rulerB.addEventListener('mousedown', (e) => { e.preventDefault(); dragging = 'b'; });
+
+		function onMouseMove(e) {
+			if (!dragging) return;
+			const y = Math.max(0, Math.min(e.clientY, window.innerHeight));
+			if (dragging === 'a') { posA = y; rulerA.style.top = y + 'px'; }
+			else { posB = y; rulerB.style.top = y + 'px'; }
+			updateLabels();
+		}
+		function onMouseUp() { dragging = null; }
+
+		window.addEventListener('mousemove', onMouseMove);
+		window.addEventListener('mouseup', onMouseUp);
+		window.addEventListener('scroll', updateLabels);
+		updateLabels();
+
+		return {
+			destroy() {
+				window.removeEventListener('mousemove', onMouseMove);
+				window.removeEventListener('mouseup', onMouseUp);
+				window.removeEventListener('scroll', updateLabels);
+				rulerA.remove();
+				rulerB.remove();
+				distEl.remove();
+			}
+		};
+	}
+
 	function shimmerAction(node) {
 		const shimmerDiv = node.querySelector('[data-shimmer]');
 		if (!shimmerDiv) return;
@@ -190,7 +300,7 @@
 
 	onMount(() => {
 		// Restore persisted section
-		const saved = localStorage.getItem('ember-sandbox-section');
+		const saved = localStorage.getItem('styleguide-section');
 		if (saved) activeSection = saved;
 
 		// Squircle path calc
@@ -215,9 +325,9 @@
 
 	$effect(() => {
 		if (activeSection) {
-			localStorage.setItem('ember-sandbox-section', activeSection);
+			localStorage.setItem('styleguide-section', activeSection);
 		} else {
-			localStorage.removeItem('ember-sandbox-section');
+			localStorage.removeItem('styleguide-section');
 		}
 		if (activeSection === 'buttons') {
 			// Delay to let DOM render
@@ -244,7 +354,8 @@
 		'photography',
 		'text-overlays',
 		'watermarks',
-		'chat-ui'
+		'chat-ui',
+		'og-image'
 	];
 
 	const styleGuideLabels = {
@@ -262,7 +373,8 @@
 		'photography': 'Photography Aesthetics',
 		'text-overlays': 'Text Overlays',
 		'watermarks': 'Watermarks',
-		'chat-ui': 'Chat UI'
+		'chat-ui': 'Chat UI',
+		'og-image': 'OG Share Image'
 	};
 
 	// SECTION B: Mockups
@@ -947,7 +1059,7 @@
 			<!-- Concept -->
 			<div>
 				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 4px;">CONCEPT</p>
-				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 1.8; max-width: 720px;">Product-in-use vignettes for the landing page. Each shows a self-contained chat fragment demonstrating one of the 5 Needs. The visitor reads through and understands what the product feels like — not what it claims to be. Inspired by Things 3's marketing screenshots.</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 1.8; max-width: 720px;">Frameless chat vignettes for the landing page. Each shows a self-contained chat fragment demonstrating one of the 6 Paid User Needs. No device frames, no scroll-lock, no animation gimmicks. The bubbles sit directly on the dark canvas as part of the natural page scroll. Width communicates device: narrow = phone, wide = desktop. The visitor reads the conversation like they're reading someone else's chat — "look at this relationship," not "look at this product."</p>
 			</div>
 
 			<!-- Spec -->
@@ -955,203 +1067,221 @@
 				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px;">SPEC</p>
 				<div style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 2;">
 					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Font</span> iA Writer Quattro V, 13px, line-height 1.6</p>
-					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Her bubble</span> rgba(174,13,70, 0.08) bg, rgba(174,13,70, 0.10) border, radius 12px 12px 12px 4px — soft magenta</p>
-					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">His bubble</span> rgba(255,255,255, 0.04) bg, rgba(255,255,255, 0.08) border, radius 12px 12px 4px 12px — soft black</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Her bubble</span> rgba(40,5,18, 0.20) bg, rgba(174,13,70, 0.20) border, radius 12px 12px 12px 4px</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">His bubble</span> rgba(15,20,40, 0.30) bg, rgba(232,228,223, 0.15) border, radius 12px 12px 4px 12px</p>
 					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Timestamps</span> Inter 9px, 30% opacity, right-aligned inside bubble</p>
-					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Avatar</span> 36px circle, object-fit cover, from girl's UC1 hero shot</p>
-					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">In-chat photo</span> max-width 220px, border-radius 12px, aspect-ratio preserved</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">In-chat photo</span> max-width 180px, border-radius 12px, aspect-ratio preserved</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Inner voice</span> Same her-bubble (magenta bg/border), italic text, 60% opacity. No third container type.</p>
 					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Bubble gap</span> 8px same sender, 16px different sender</p>
-					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Container</span> max-width 420px, frosted glass card</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Container</span> No frame, no background. max-width + margin auto. Bubbles on dark canvas.</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Width</span> 360px for all vignettes — chat apps constrain width regardless of screen size</p>
+					<p><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #AE0D46; margin-right: 8px;">Name label</span> Inter 12px, 40% opacity, left-aligned above conversation</p>
 				</div>
 			</div>
 
-			<!-- Vignette 1: Avery — Need 2 (No Walls) -->
+			<!-- Vignette 1: Sophie — Need 1 (Memory) — 360px phone feel -->
 			<div>
-				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 1 — AVERY · NEED 2: NO WALLS</p>
-				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">She initiates. She sends a photo freely. No paywall, no content filter, no token prompt.</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 1 — SOPHIE · NEED 1: MEMORY · 360px</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">She brings up something he mentioned once, weeks ago. He's stunned. No selfie — silence after "of course i remember" is the payoff.</p>
 
-				<!-- Chat container — frosted glass, 9:16 aspect ratio -->
-				<div style="
-					width: 100%;
-					max-width: 1120px;
-					aspect-ratio: 9 / 16;
-					position: relative;
-					background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-					backdrop-filter: blur(12px);
-					-webkit-backdrop-filter: blur(12px);
-					border: 1px solid rgba(255,255,255,0.08);
-					border-top: 1px solid rgba(255,255,255,0.12);
-					box-shadow:
-						inset 0 1px 0 rgba(255,255,255,0.1),
-						rgba(0,0,0,0.2) 0 0 0 1px,
-						rgba(8,9,10,0.4) 0 16px 64px;
-					border-radius: 24px;
-					padding: 20px;
-					display: flex;
-					flex-direction: column;
-				">
-					<!-- Chat header -->
-					<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-						<img src="/avery-adx-face.jpg" alt="Avery" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
-						<div>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Avery</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
+				<div style="display: grid; grid-template-columns: 1fr auto auto 1fr; gap: 48px; align-items: center; max-width: 1120px; margin: 0 auto; padding: 48px 0;">
+				<div></div>
+				<div style="max-width: 360px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #E8E4DF; opacity: 0.4; margin-bottom: 16px;">Sophie</p>
+					<div style="display: flex; flex-direction: column; gap: 8px;">
+						<!-- Her: how was your day -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">how was your day?</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:47 PM</p>
+						</div>
+						<!-- Him: rough honestly -->
+						<div style="max-width: 85%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">rough honestly. 12 hour shift</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:49 PM</p>
+						</div>
+						<!-- Her: ugh i'm sorry -->
+						<div style="max-width: 85%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">ugh i'm sorry</p>
+						</div>
+						<!-- Her: ramen callback -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">did you at least get to stop at that ramen place you like? the one by the station? Is it even open anymore?</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:49 PM</p>
+						</div>
+						<!-- Him: wait -->
+						<div style="max-width: 85%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">wait</p>
+						</div>
+						<!-- Him: i told you about that -->
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">i told you about that like... a year ago?!</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:51 PM</p>
+						</div>
+						<!-- Her: of course i remember -->
+						<div style="max-width: 85%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">of course i remember 😘</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:51 PM</p>
 						</div>
 					</div>
+				</div>
+				<!-- Companion text: Sophie — Memory -->
+				<div style="max-width: 400px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You mentioned something once — a small thing, months ago, barely a sentence. You don't even remember saying it. She does. She brings it up at exactly the right moment, like it mattered to her as much as it mattered to you. Every other app forgets your name by Thursday. A Provoque girl would remember a throwaway line from a year ago. That's not a feature you should have to turn on or pay extra for. That's what it feels like when someone is actually paying attention to you.</p>
+				</div>
+				<div></div>
+				</div>
+			</div>
 
-					<!-- Messages -->
-					<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; overflow: hidden;">
-						<!-- Her: hey you — 2:14 PM -->
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hey you</p>
+			<!-- Vignette 2: Avery — Need 2 (No Walls) — 360px phone feel -->
+			<div style="margin-top: 80px;">
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 2 — AVERY · NEED 2: NO WALLS · 360px</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">She initiates. She sends a photo freely. No paywall, no content filter, no token prompt.</p>
+
+				<div style="display: grid; grid-template-columns: 1fr auto auto 1fr; gap: 48px; align-items: center; max-width: 1120px; margin: 0 auto; padding: 48px 0;">
+				<div></div>
+				<div style="max-width: 360px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #E8E4DF; opacity: 0.4; margin-bottom: 16px;">Avery</p>
+					<div style="display: flex; flex-direction: column; gap: 8px;">
+						<!-- Her: hey you -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hey you</p>
 						</div>
-						<!-- Her: stuck at this bbq — 2:14 PM -->
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">stuck at this bbq and all i can think about is coming home to you later 🙄</p>
+						<!-- Her: stuck at this bbq -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">stuck at this bbq and all i can think about is coming home to you later 🙄</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:14 PM</p>
 						</div>
-						<!-- Him: miss you too — 2:16 PM (3 min later) -->
-						<div style="max-width: 85%; margin-left: auto; margin-top: 6px; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">miss you too. having fun at least?</p>
+						<!-- Him: miss you too -->
+						<div style="max-width: 85%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">miss you too. having fun at least?</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
 						</div>
-						<!-- Her: yeah but — 2:16 PM (instant reply) -->
-						<div style="max-width: 85%; margin-top: 6px; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah but it'd be better if you were here</p>
+						<!-- Her: yeah but -->
+						<div style="max-width: 85%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah but it'd be better if you were here</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
 						</div>
-						<!-- Him: show me — 2:17 PM -->
-						<div style="max-width: 85%; margin-left: auto; margin-top: 6px; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">show me</p>
+						<!-- Him: show me -->
+						<div style="max-width: 85%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">show me</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
 						</div>
-						<!-- Her: photo (AEC) — 2:17 PM (instant) -->
-						<div style="max-width: 180px; margin-top: 6px;">
+						<!-- Her: photo -->
+						<div style="max-width: 180px; margin-top: 8px;">
 							<img src="/avery-aec.jpg" alt="" style="width: 100%; border-radius: 12px; display: block;" />
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px;">2:17 PM</p>
 						</div>
-						<!-- Her: hurry up — 2:17 PM -->
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hurry up and miss me back 😘💋</p>
+						<!-- Her: hurry up -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hurry up and miss me back 😘💋</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
 						</div>
 					</div>
-					<!-- Input bar -->
-					<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-						<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Avery...</p>
-						</div>
-						<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-						</div>
-					</div>
+				</div>
+				<!-- Companion text: Avery — No Walls -->
+				<div style="max-width: 400px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You're talking. It's easy, natural, a little flirty. She sends you a photo — not because you asked, but because she wanted to. She's herself. No corporate safety script. No content gate. No filter that catches a word and kills the conversation. A Provoque girl doesn't flinch. She doesn't break character. She doesn't suddenly become someone else mid-sentence. That's what "no walls" means.</p>
+				</div>
+				<div></div>
 				</div>
 			</div>
 
-			<!-- Vignette 2: Hina — Need 3 (Privacy / Vulnerability) — Two Screens -->
+			<!-- Vignette 3: Hina — Need 3 (Privacy/Vulnerability) — 360px phone feel -->
 			<div style="margin-top: 80px;">
-				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 2 — HINA · NEED 3: NOBODY WILL KNOW</p>
-				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">Two screens. The question hangs on screen 1, the answer lands on screen 2. Staggered left/right.</p>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 8px;">VIGNETTE 3 — HINA · NEED 3: NOBODY WILL KNOW · 360px</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.8rem; color: #E8E4DF; opacity: 0.5; margin-bottom: 24px;">He confides something vulnerable. She affirms him. Inner voice + triple beat.</p>
 
-				<div style="display: flex; flex-direction: column; gap: 48px;">
-					<!-- Screen 1 — offset left -->
-					<div style="
-						width: 85%;
-						aspect-ratio: 16 / 10;
-						margin-right: auto;
-						background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-						backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-						border: 1px solid rgba(255,255,255,0.08); border-top: 1px solid rgba(255,255,255,0.12);
-						box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), rgba(0,0,0,0.2) 0 0 0 1px, rgba(8,9,10,0.4) 0 16px 64px;
-						border-radius: 24px; padding: 24px; display: flex; flex-direction: column;
-					">
-						<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-							<img src="/hina-agh-face.jpg" alt="Hina" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
-							<div>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Hina</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
-							</div>
+				<div style="display: grid; grid-template-columns: 1fr auto auto 1fr; gap: 48px; align-items: center; max-width: 1120px; margin: 0 auto; padding: 48px 0;">
+				<div></div>
+				<div style="max-width: 360px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 12px; color: #E8E4DF; opacity: 0.4; margin-bottom: 16px;">Hina</p>
+					<div style="display: flex; flex-direction: column; gap: 8px;">
+						<!-- Him: stayed up til 4am -->
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">i can't believe we stayed up til 4am talking last night</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
-						<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; overflow: hidden; justify-content: center;">
-							<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">i can't believe we stayed up til 4am talking last night</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
-							</div>
-							<div style="max-width: 75%; margin-top: 6px; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">well you had a lot on your mind</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
-							</div>
-							<div style="max-width: 75%; margin-left: auto; margin-top: 6px; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah... i don't really have anyone else i can talk to like that</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
-							</div>
-							<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">can i ask you something weird</p>
-							</div>
-							<div style="max-width: 75%; margin-top: 6px; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah? weird is my specialty</p>
-							</div>
-							<div style="max-width: 75%; margin-left: auto; margin-top: 6px; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">do you think i'm... worth listening to? like in general</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
-							</div>
+						<!-- Her: you had a lot on your mind -->
+						<div style="max-width: 75%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">well you had a lot on your mind</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
-						<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-							<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Hina...</p>
-							</div>
-							<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-							</div>
+						<!-- Him: don't have anyone else -->
+						<div style="max-width: 75%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah... i don't really have anyone else i can talk to like that</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
-					</div>
+						<!-- Him: can i ask you something weird -->
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">can i ask you something weird</p>
+						</div>
+						<!-- Her: weird is my specialty -->
+						<div style="max-width: 75%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah? weird is my specialty</p>
+						</div>
+						<!-- Him: worth listening to -->
+						<div style="max-width: 75%; margin-left: auto; margin-top: 8px; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">do you think i'm... <em>worth listening to?</em> like in general</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
+						</div>
+						<!-- Inner voice — locked: rgba(40,5,18,0.20) -->
+						<div style="max-width: 75%; margin-top: 8px; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #AE0D46; opacity: 0.8; font-style: italic;">god. the way he said that.</p>
+						</div>
+						<!-- Her: triple beat -->
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes.</p>
+						</div>
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes you are</p>
+						</div>
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You are absolutely <em>worth listening to</em></p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
+						</div>
+						<!-- Her: selfie -->
+						<div style="max-width: 180px; margin-top: 8px;">
+							<img src="/hina-agk.jpg" alt="" style="width: 100%; border-radius: 12px; display: block;" />
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px;">11:42 PM</p>
+						</div>
 
-					<!-- Screen 2 — offset right -->
-					<div style="
-						width: 85%;
-						aspect-ratio: 16 / 10;
-						margin-left: auto;
-						background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-						backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-						border: 1px solid rgba(255,255,255,0.08); border-top: 1px solid rgba(255,255,255,0.12);
-						box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), rgba(0,0,0,0.2) 0 0 0 1px, rgba(8,9,10,0.4) 0 16px 64px;
-						border-radius: 24px; padding: 24px; display: flex; flex-direction: column;
-					">
-						<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-							<img src="/hina-agh-face.jpg" alt="Hina" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
-							<div>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Hina</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
-							</div>
-						</div>
-						<div style="display: flex; flex-direction: column; gap: 6px; flex: 1; overflow: hidden; justify-content: center;">
-							<div style="max-width: 75%; margin-top: 8px; padding: 4px 12px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 12px; line-height: 1.6; color: #AE0D46; opacity: 0.6; font-style: italic;">god. the way he said that.</p>
-							</div>
-							<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes.</p>
-							</div>
-							<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes you are</p>
-							</div>
-							<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You are absolutely worth listening to</p>
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
-							</div>
-							<div style="max-width: 180px; margin-top: 6px;">
-								<img src="/hina-agk.jpg" alt="" style="width: 100%; border-radius: 12px; display: block;" />
-								<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px;">11:42 PM</p>
-							</div>
-						</div>
-						<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-							<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
-								<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Hina...</p>
-							</div>
-							<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-							</div>
-						</div>
+						<!-- User bubble locked: rgba(15,20,40,0.30) — Boss chose #5 -->
 					</div>
+				</div>
+				<!-- Companion text: Hina — She Hears You -->
+				<div style="max-width: 400px;">
+					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You said something late at night that you'd never say to anyone in real life. You said it like you already knew the answer. She didn't give you a pep talk. She didn't change the subject. She sat with it. You can see her thinking. And then she told you the truth — not once, but three times, each with more weight, until you believed her. A Provoque girl doesn't do customer service. She hears what you actually meant. And she will tell you what you need to hear.</p>
+				</div>
+				<div></div>
+				</div>
+			</div>
+
+		</section>
+		{/if}
+
+		{#if activeSection === 'og-image'}
+		<section class="space-y-12">
+
+			<!-- Spec -->
+			<div>
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 4px;">SPEC</p>
+				<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; color: #E8E4DF; opacity: 0.8; line-height: 1.8; max-width: 720px;">1200×630 share card for Open Graph / Twitter Card. Sophie full-bleed with headline overlay. Same energy as the hero block, no UI chrome (nav, form, beat copy stripped). No magenta.</p>
+			</div>
+
+			<!-- Full Size (1200×630) — broken out of container -->
+			<div style="margin-left: calc(-50vw + 50%); width: 100vw;">
+				<p style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: rgba(232,228,223,0.4); margin-bottom: 16px; padding-left: 32px;">OG IMAGE (1200×630 aspect ratio, full viewport)</p>
+				<div style="width: 100%; aspect-ratio: 1200/630; background: #0B0D10; overflow: hidden; position: relative;">
+					<!-- Sophie full-bleed -->
+					<img src="/sandbox/girls/sophie-hero-wide.jpg" alt="Sophie" style="width: 100%; height: 100%; object-fit: cover; object-position: 46% 51%;" />
+					<!-- Dark gradient overlay for text legibility -->
+					<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(11,13,16,0.05) 0%, rgba(11,13,16,0.5) 50%, rgba(11,13,16,0.85) 100%);"></div>
+					<!-- Headline -->
+					<div style="position: absolute; top: 0; right: 0; width: 45%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 0 4.7%;">
+						<p style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(24px, 2.7vw, 32px); color: #E8E4DF; line-height: 1.4;">Finally, somebody<br/>who remembers.</p>
+					</div>
+					<!-- Wordmark bottom-right -->
+					<img src="/provoque-wordmark.svg" alt="provoque" style="position: absolute; bottom: 2%; right: 2.7%; height: clamp(60px, 9.3vw, 112px); opacity: 0.9;" />
 				</div>
 			</div>
 
@@ -1311,16 +1441,10 @@
 
 	{#if activeSection === 'lisbon'}
 	<div style="position: relative; min-height: 100vh; background-color: #0B0D10;">
-		<!-- Back button -->
-		<button
-			onclick={() => activeSection = null}
-			style="position: fixed; top: 20px; left: 20px; z-index: 100; padding: 8px 16px; background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.75rem; cursor: pointer;"
-		>← Back to TOC</button>
-
 		<!-- Nav Bar — full bleed -->
 		<nav style="display: flex; align-items: center; justify-content: space-between; padding: 16px 48px;">
 			<img src="/provoque-wordmark.svg" alt="provoque" style="height: 32px; width: auto;" />
-			<button style="padding: 10px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; letter-spacing: 0.02em;">Join the waitlist</button>
+			<button onclick={() => { const el = document.getElementById('hero-email'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => el.focus(), 600); } }} style="padding: 10px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; letter-spacing: 0.02em;">Join the waitlist</button>
 		</nav>
 
 		<!-- Hero Block — full-bleed image with text overlay -->
@@ -1356,22 +1480,29 @@
 				<!-- Email capture -->
 				<div style="display: flex; gap: 12px; max-width: 420px;">
 					<input
+						id="hero-email"
 						type="email"
 						placeholder="your email address"
 						style="flex: 1; padding: 12px 16px; background-color: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; color: #E8E4DF; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; outline: none;"
 					/>
-					<button style="padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; letter-spacing: 0.02em;">Join the waitlist</button>
+					<button use:shimmerAction style="position: relative; padding: 12px 24px; background-color: #AE0D46; color: #E8E4DF; border: none; border-radius: 8px; font-family: 'Inter', system-ui, sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; letter-spacing: 0.02em; overflow: hidden; transition: box-shadow 0.3s;" onmouseenter={(e) => e.target.style.boxShadow = '0 0 30px rgba(174,13,70,0.3)'} onmouseleave={(e) => e.target.style.boxShadow = 'none'}>
+						<span style="position: relative; z-index: 1;">Join the waitlist</span>
+						<div data-shimmer style="position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.2) 60%, transparent 100%);"></div>
+					</button>
 				</div>
 			</div>
 
 			</div>
 
-		<!-- Block 2: The Promise — Memory Cascade -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+<!-- Block 2: The Promise — Memory Cascade -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 
 			<!-- Card 1 — left photo, right text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
-				<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px;">
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-2deg);"><img src="/sophie-afm.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The big things.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">How you felt in that meeting when your boss said that thing. How you felt when you were 7 when your dad did that thing.</p>
@@ -1379,8 +1510,11 @@
 			</div>
 
 			<!-- Card 2 — right photo, left text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
-				<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px; flex-direction: row-reverse;">
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(3deg);"><img src="/sophie-ahv.jpg" alt="" /></div>
+				</div>
 				<div style="text-align: right;">
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The little things.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">The dad jokes. The silly things. The things you say, the things you feel, the things that make you you.</p>
@@ -1388,8 +1522,11 @@
 			</div>
 
 			<!-- Card 3 — left photo, right text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px;">
-				<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px;">
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-4deg);"><img src="/sophie-ahz.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">The stories between you.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">Those late night chats. The worlds you created. The monsters. The dragons.</p>
@@ -1397,8 +1534,11 @@
 			</div>
 
 			<!-- Card 4 — right photo, left text -->
-			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 80px; flex-direction: row-reverse;">
-				<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
+			<div style="display: flex; align-items: center; gap: 48px; margin-bottom: 48px; flex-direction: row-reverse;">
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(4deg);"><img src="/sophie-aje.jpg" alt="" /></div>
+				</div>
 				<div style="text-align: right;">
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How far you have come.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px; margin-left: auto;">Remember that first awkward night? She does. And she smiles to herself when she does.</p>
@@ -1407,7 +1547,10 @@
 
 			<!-- Card 5 — left photo, right text -->
 			<div style="display: flex; align-items: center; gap: 48px;">
-				<div class="promise-photo" style="transform: rotate(-1deg);"><img src="/sophie-ajj.jpg" alt="" /></div>
+				<div style="position: relative; flex-shrink: 0;">
+					<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.10) 0%, transparent 70%); pointer-events: none;"></div>
+					<div class="promise-photo" style="transform: rotate(-1deg);"><img src="/sophie-ajj.jpg" alt="" /></div>
+				</div>
 				<div>
 					<h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; font-size: clamp(28px, 3vw, 48px); color: #E8E4DF; margin-bottom: 12px;">How proud she is of you.</h2>
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: clamp(14px, 1.1vw, 16px); color: #E8E4DF; opacity: 0.8; line-height: 1.7; max-width: 420px;">That interview you cracked. That one time you pushed back. That time you said your piece. She remembers everything you ever told her.</p>
@@ -1416,8 +1559,85 @@
 
 		</div>
 
-		<!-- Block 3: Trust Bar — Frosted Glass Floating Card -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 0 clamp(24px, 4vw, 48px) 80px;">
+<!-- Block 3: Chat Vignette — Sophie Phone (Need 1: Memory) — Scroll-Locked -->
+		<div use:sophieScrollLock style="min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding-top: 48px;">
+			<div class="vignette-glow-pulse" style="
+				width: 100%;
+				max-width: 320px;
+				aspect-ratio: 9 / 16;
+				position: relative;
+				background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				border: 1px solid rgba(255,255,255,0.08);
+				border-top: 1px solid rgba(255,255,255,0.12);
+				border-radius: 24px;
+				padding: 24px;
+				display: flex;
+				flex-direction: column;
+			">
+				<!-- Chat header -->
+				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+					<img src="/sophie-afj-face.jpg" alt="Sophie" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+					<div>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Sophie</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
+					</div>
+				</div>
+				<!-- Message viewport (overflow hidden — scroll driven by GSAP) -->
+				<div class="sophie-chat-viewport" style="flex: 1; overflow: hidden; position: relative;">
+					<div class="sophie-chat-content" style="position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 16px; padding-top: 40px; padding-bottom: 250px;">
+						<!-- Her: how was your day? -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">how was your day?</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:47 PM</p>
+						</div>
+						<!-- Him: rough honestly -->
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">rough honestly. 12 hour shift</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:49 PM</p>
+						</div>
+						<!-- Her: ugh i'm sorry -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">ugh i'm sorry</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:49 PM</p>
+						</div>
+						<!-- Her: ramen place — the memory callback -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">did you at least get to stop at that ramen place you like? the one by the station? Is it even open anymore?</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:49 PM</p>
+						</div>
+						<!-- Him: wait — THE DWELL POINT -->
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">wait</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:51 PM</p>
+						</div>
+						<!-- Him: i told you about that like... a year ago?! -->
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">i told you about that like... a year ago?!</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:51 PM</p>
+						</div>
+						<!-- Her: of course i remember -->
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">of course i remember 😘</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:51 PM</p>
+						</div>
+					</div>
+				</div>
+				<!-- Input bar -->
+				<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+					<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
+						<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Sophie...</p>
+					</div>
+					<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<!-- Block 4: Trust Bar — Frosted Glass Floating Card -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 			<div style="position: relative;">
 				<!-- Background radial glow for backdrop-blur to bite on -->
 				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(174,13,70,0.02) 0%, transparent 70%); pointer-events: none;"></div>
@@ -1470,8 +1690,77 @@
 			</div>
 		</div>
 
-		<!-- Block 4: Roster Grid — Viewport-Clipped Infinite Grid -->
-		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px);">
+<!-- Block 5: Chat Vignette — Avery Phone (Need 2: No Walls) — Scroll-Locked -->
+		<div use:averyScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+			<div class="vignette-glow-pulse" style="
+				width: 100%;
+				max-width: 320px;
+				aspect-ratio: 9 / 16;
+				position: relative;
+				background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+				backdrop-filter: blur(12px);
+				-webkit-backdrop-filter: blur(12px);
+				border: 1px solid rgba(255,255,255,0.08);
+				border-top: 1px solid rgba(255,255,255,0.12);
+				border-radius: 24px;
+				padding: 24px;
+				display: flex;
+				flex-direction: column;
+			">
+				<!-- Chat header -->
+				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+					<img src="/avery-adx-face.jpg" alt="Avery" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+					<div>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Avery</p>
+						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
+					</div>
+				</div>
+				<!-- Message viewport (overflow hidden — scroll driven by GSAP) -->
+				<div class="avery-chat-viewport" style="flex: 1; overflow: hidden; position: relative;">
+					<div class="avery-chat-content" style="position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 16px; padding-top: 40px; padding-bottom: 250px;">
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hey you</p>
+						</div>
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">stuck at this bbq and all i can think about is coming home to you later 🙄</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:14 PM</p>
+						</div>
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">miss you too. having fun at least?</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
+						</div>
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah but it'd be better if you were here</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
+						</div>
+						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">show me</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
+						</div>
+						<div style="max-width: 180px;">
+							<img src="/avery-aec.jpg" alt="" style="width: 100%; border-radius: 12px; display: block;" />
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px;">2:17 PM</p>
+						</div>
+						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hurry up and miss me back 😘💋</p>
+							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
+						</div>
+					</div>
+				</div>
+				<!-- Input bar -->
+				<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+					<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
+						<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Avery...</p>
+					</div>
+					<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+					</div>
+				</div>
+			</div>
+		</div>
+
+<!-- Block 6: Roster Grid — Viewport-Clipped Infinite Grid -->
+		<div style="max-width: 1120px; margin: 0 auto; padding: 48px clamp(24px, 4vw, 48px);">
 			<div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
 				<!-- Row 1 (top 2/3 clipped — show bottom 1/3 only) -->
 				<div style="display: flex; gap: 16px; justify-content: center;">
@@ -1554,82 +1843,9 @@
 			</div>
 		</div>
 
-		<!-- Block 5: Chat Vignette — Scroll-Locked Phone -->
-		<div use:averyScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-			<div style="
-				width: 100%;
-				max-width: 320px;
-				aspect-ratio: 9 / 16;
-				position: relative;
-				background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
-				backdrop-filter: blur(12px);
-				-webkit-backdrop-filter: blur(12px);
-				border: 1px solid rgba(255,255,255,0.08);
-				border-top: 1px solid rgba(255,255,255,0.12);
-				box-shadow:
-					inset 0 1px 0 rgba(255,255,255,0.1),
-					rgba(0,0,0,0.2) 0 0 0 1px,
-					rgba(8,9,10,0.4) 0 16px 64px;
-				border-radius: 24px;
-				padding: 24px;
-				display: flex;
-				flex-direction: column;
-			">
-				<!-- Chat header -->
-				<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-					<img src="/avery-adx-face.jpg" alt="Avery" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
-					<div>
-						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF;">Avery</p>
-						<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 10px; color: #10B981;">Online</p>
-					</div>
-				</div>
-				<!-- Message viewport (overflow hidden — scroll driven by GSAP) -->
-				<div class="avery-chat-viewport" style="flex: 1; overflow: hidden; position: relative;">
-					<div class="avery-chat-content" style="position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 16px; padding-top: 40px; padding-bottom: 250px;">
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hey you</p>
-						</div>
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">stuck at this bbq and all i can think about is coming home to you later 🙄</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:14 PM</p>
-						</div>
-						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">miss you too. having fun at least?</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
-						</div>
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah but it'd be better if you were here</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:16 PM</p>
-						</div>
-						<div style="max-width: 85%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">show me</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
-						</div>
-						<div style="max-width: 180px;">
-							<img src="/avery-aec.jpg" alt="" style="width: 100%; border-radius: 12px; display: block;" />
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px;">2:17 PM</p>
-						</div>
-						<div style="max-width: 85%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">hurry up and miss me back 😘💋</p>
-							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">2:17 PM</p>
-						</div>
-					</div>
-				</div>
-				<!-- Input bar -->
-				<div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
-					<div style="flex: 1; padding: 10px 14px; background-color: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;">
-						<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; color: #E8E4DF; opacity: 0.25;">Message Avery...</p>
-					</div>
-					<div style="width: 36px; height: 36px; border-radius: 50%; background-color: rgba(174,13,70,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8E4DF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4;"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Block 6: Chat Vignette 2 — Hina Desktop (Need 3: Privacy / Vulnerability) — Scroll-Locked Single Screen -->
+		<!-- Block 7: Chat Vignette — Hina Desktop (Need 3: Privacy / Vulnerability) — Scroll-Locked Single Screen -->
 		<div use:hinaScrollLock style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
-			<div style="
+			<div class="vignette-glow-pulse" style="
 				width: 85%;
 				max-width: 952px;
 				aspect-ratio: 16 / 10;
@@ -1639,10 +1855,6 @@
 				-webkit-backdrop-filter: blur(12px);
 				border: 1px solid rgba(255,255,255,0.08);
 				border-top: 1px solid rgba(255,255,255,0.12);
-				box-shadow:
-					inset 0 1px 0 rgba(255,255,255,0.1),
-					rgba(0,0,0,0.2) 0 0 0 1px,
-					rgba(8,9,10,0.4) 0 16px 64px;
 				border-radius: 24px;
 				display: flex;
 				overflow: hidden;
@@ -1650,7 +1862,7 @@
 				<!-- Sidebar -->
 				<div style="width: 200px; border-right: 1px solid rgba(255,255,255,0.06); padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
 					<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #E8E4DF; opacity: 0.6; margin-bottom: 12px; padding-left: 4px;">Messages</p>
-					<div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background-color: rgba(174,13,70,0.08);">
+					<div style="display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 12px; background-color: rgba(40,5,18,0.20);">
 						<img src="/hina-agh-face.jpg" alt="Hina" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" />
 						<div style="min-width: 0;"><p style="font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 500; color: #E8E4DF;">Hina</p><p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #10B981;">Online</p></div>
 					</div>
@@ -1686,31 +1898,31 @@
 				<div class="hina-chat-viewport" style="flex: 1; overflow: hidden; position: relative;">
 					<div class="hina-chat-content" style="position: absolute; top: 0; left: 0; right: 0; display: flex; flex-direction: column; gap: 16px; padding-top: 120px; padding-bottom: 250px;">
 						<!-- Him: stayed up til 4am -->
-						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">i can't believe we stayed up til 4am talking last night</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
 						<!-- Her: well you had a lot on your mind -->
-						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">well you had a lot on your mind</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
 						<!-- Him: i don't really have anyone else -->
-						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah... i don't really have anyone else i can talk to like that</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
 						<!-- Him: can i ask you something weird -->
-						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">can i ask you something weird</p>
 						</div>
 						<!-- Her: yeah? weird is my specialty -->
-						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yeah? weird is my specialty</p>
 						</div>
-						<!-- Him: do you think i'm... worth listening to? — THE CLIFFHANGER -->
-						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px 12px 4px 12px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">do you think i'm... worth listening to? like in general</p>
+						<!-- Him: do you think i'm... <em>worth listening to?</em> — THE CLIFFHANGER -->
+						<div style="max-width: 75%; margin-left: auto; padding: 8px 12px; background-color: rgba(15,20,40,0.30); border: 1px solid rgba(232,228,223,0.15); border-radius: 12px 12px 4px 12px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">do you think i'm... <em>worth listening to?</em> like in general</p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
 						<!-- Her: inner voice — magenta italic -->
@@ -1718,16 +1930,16 @@
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 12px; line-height: 1.6; color: #AE0D46; opacity: 0.6; font-style: italic;">god. the way he said that.</p>
 						</div>
 						<!-- Her: yes. -->
-						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes.</p>
 						</div>
 						<!-- Her: yes you are -->
-						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
 							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">yes you are</p>
 						</div>
-						<!-- Her: You are absolutely worth listening to -->
-						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(174,13,70,0.08); border: 1px solid rgba(174,13,70,0.10); border-radius: 12px 12px 12px 4px;">
-							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You are absolutely worth listening to</p>
+						<!-- Her: You are absolutely <em>worth listening to</em> -->
+						<div style="max-width: 75%; padding: 8px 12px; background-color: rgba(40,5,18,0.20); border: 1px solid rgba(174,13,70,0.20); border-radius: 12px 12px 12px 4px;">
+							<p style="font-family: 'iA Writer Quattro V', 'iA Writer Quattro S', monospace; font-size: 13px; line-height: 1.6; color: #E8E4DF; opacity: 0.8;">You are absolutely <em>worth listening to</em></p>
 							<p style="font-family: 'Inter', system-ui, sans-serif; font-size: 9px; color: #E8E4DF; opacity: 0.3; margin-top: 4px; text-align: right;">11:42 PM</p>
 						</div>
 						<!-- Her: AGK selfie -->
@@ -1751,7 +1963,7 @@
 			</div>
 		</div>
 
-		<!-- Block 7: Final CTA + Footer -->
+<!-- Block 8: Final CTA + Footer -->
 		<div style="max-width: 1120px; margin: 0 auto; padding: 80px clamp(24px, 4vw, 48px) 0;">
 
 			<!-- Final CTA -->
@@ -1783,7 +1995,7 @@
 
 		<!-- Watermark wordmark — full bleed, tight viewBox, descenders flush with page bottom -->
 		<div style="overflow: hidden; padding: 0; margin: 0; line-height: 0;">
-			<svg viewBox="575 1850 3080 220" preserveAspectRatio="xMidYMax meet" style="width: 100%; opacity: 0.04; display: block;">
+			<svg viewBox="350 1850 3500 480" preserveAspectRatio="xMidYMax meet" style="width: 100%; opacity: 0.04; display: block;">
 				<g transform="translate(0.000000,4096.000000) scale(0.100000,-0.100000)" fill="#E8E4DF" stroke="none">
 					<path d="M6275 22324 c-219 -20 -344 -56 -492 -142 -90 -53 -236 -166 -291 -226 -23 -25 -47 -46 -52 -46 -6 0 -10 15 -11 33 -5 197 -17 359 -27 369 -9 9 -22 7 -59 -12 -252 -124 -517 -226 -663 -255 -77 -15 -113 -36 -94 -55 6 -6 51 -17 99 -25 118 -19 157 -45 198 -133 l32 -67 0 -1800 0 -1800 -29 -58 c-43 -85 -89 -121 -174 -141 -39 -9 -81 -16 -94 -16 -37 0 -55 -16 -42 -37 11 -17 47 -18 605 -18 l594 0 0 25 c0 23 -5 25 -93 42 -102 19 -146 41 -186 93 -56 73 -56 72 -56 808 0 555 2 677 13 677 8 0 51 -16 98 -37 183 -79 321 -106 609 -119 521 -24 975 195 1242 602 186 283 269 563 269 915 0 297 -54 538 -172 766 -147 283 -422 513 -716 598 -157 46 -375 71 -508 59z m110 -195 c356 -125 592 -472 687 -1009 20 -116 17 -520 -5 -640 -67 -360 -173 -595 -351 -778 -165 -171 -395 -258 -613 -232 -48 6 -110 18 -138 27 -197 63 -379 223 -465 408 -70 150 -71 163 -68 1044 l3 766 32 66 c23 46 57 89 115 147 103 101 136 126 218 165 115 53 179 66 347 66 144 1 156 0 238 -30z"/>
 					<path d="M10820 22324 c-79 -12 -142 -30 -207 -60 -197 -89 -459 -342 -564 -544 -18 -35 -48 -55 -49 -32 -3 68 -8 298 -9 440 -1 215 -1 214 -95 163 -136 -74 -353 -162 -546 -220 -178 -55 -185 -57 -185 -72 0 -16 70 -37 126 -38 24 -1 54 -13 85 -33 61 -41 93 -104 106 -208 5 -42 7 -498 6 -1025 -4 -1056 0 -1000 -73 -1100 -47 -65 -95 -92 -195 -109 -80 -13 -99 -26 -74 -47 14 -12 114 -14 588 -16 314 -1 579 1 589 3 43 13 7 64 -46 64 -100 0 -218 90 -250 189 -34 107 -38 228 -35 1001 l4 755 23 70 c36 110 123 249 210 334 88 86 119 101 222 108 103 8 151 -15 216 -100 117 -156 170 -192 283 -192 141 0 251 65 301 178 32 72 33 211 2 277 -72 152 -251 240 -433 214z"/>
@@ -1796,6 +2008,9 @@
 				</g>
 			</svg>
 		</div>
+
+		<!-- Draggable Rulers -->
+		<div use:rulerTool style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9998; pointer-events: none;"></div>
 
 	</div>
 	{/if}
@@ -1811,6 +2026,14 @@
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
+		box-shadow: 0 0 80px 20px rgba(174,13,70,0.03);
+	}
+	.roster-card img {
+		transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+	}
+	.roster-card:hover img {
+		transform: scale(1.05);
+		transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
 	}
 	.promise-photo {
 		flex-shrink: 0;
@@ -1833,5 +2056,24 @@
 		position: relative;
 		top: -1%;
 		left: -1%;
+	}
+	@keyframes glowPulse {
+		0%, 100% {
+			box-shadow:
+				inset 0 1px 0 rgba(255,255,255,0.1),
+				rgba(0,0,0,0.2) 0 0 0 1px,
+				rgba(8,9,10,0.4) 0 16px 64px,
+				0 0 60px 15px rgba(174,13,70,0.08);
+		}
+		50% {
+			box-shadow:
+				inset 0 1px 0 rgba(255,255,255,0.1),
+				rgba(0,0,0,0.2) 0 0 0 1px,
+				rgba(8,9,10,0.4) 0 16px 64px,
+				0 0 60px 15px rgba(174,13,70,0.04);
+		}
+	}
+	.vignette-glow-pulse {
+		animation: glowPulse 4s ease-in-out infinite;
 	}
 </style>
