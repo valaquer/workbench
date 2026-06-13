@@ -1,43 +1,46 @@
+<script>
+	const routes = [
+		'/bavaria', '/cernere', '/cydonia', '/lisbon', '/styleguide'
+	];
+
+	function getVisitHistory() {
+		try {
+			return JSON.parse(localStorage.getItem('workbench-visits') || '{}');
+		} catch { return {}; }
+	}
+
+	function recordVisit(route) {
+		const visits = getVisitHistory();
+		visits[route] = Date.now();
+		localStorage.setItem('workbench-visits', JSON.stringify(visits));
+	}
+
+	let sortedRoutes = $state(routes);
+
+	$effect(() => {
+		const visits = getVisitHistory();
+		sortedRoutes = [...routes].sort((a, b) => {
+			const aTime = visits[a] || 0;
+			const bTime = visits[b] || 0;
+			if (aTime && bTime) return bTime - aTime;
+			if (aTime) return -1;
+			if (bTime) return 1;
+			return a.localeCompare(b);
+		});
+	});
+</script>
+
 <nav class="min-h-screen bg-dark px-6 py-12">
 	<div class="max-w-7xl mx-auto">
-		<img src="/images/brand-logo.png" alt="Honeybloom" class="h-14 mb-12" />
 		<h1 class="text-heading text-cream mb-8">Workbench</h1>
 		<ul class="space-y-4">
-			<li>
-				<a href="/cydonia" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/cydonia — Cydonia 24B v4.3 Tournament Outputs (Sprint 18)
-				</a>
-			</li>
-			<li>
-				<a href="/lora-training" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/lora-training — Gabriela LoRA samples
-				</a>
-			</li>
-			<li>
-				<a href="/homepage" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/homepage
-				</a>
-			</li>
-			<li>
-				<a href="/styleguide" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/styleguide
-				</a>
-			</li>
-			<li>
-				<a href="/gallery" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/gallery
-				</a>
-			</li>
-			<li>
-				<a href="/preorder-benefits" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/preorder-benefits
-				</a>
-			</li>
-			<li>
-				<a href="/pricing" class="text-body text-cream/70 hover:text-cream transition-colors">
-					/pricing
-				</a>
-			</li>
+			{#each sortedRoutes as route}
+				<li>
+					<a href={route} class="text-body text-cream/70 hover:text-cream transition-colors" onclick={() => recordVisit(route)}>
+						{route}
+					</a>
+				</li>
+			{/each}
 		</ul>
 	</div>
 </nav>
