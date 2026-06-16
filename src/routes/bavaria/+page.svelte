@@ -27,7 +27,7 @@
 
 	// Filters
 	let filterCharacter = $state('');
-	let filterReview = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-review') ?? '') : '');
+	let filterReview = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-review') ?? 'accepted') : 'accepted');
 	let filterDeployment = $state('');
 
 	$effect(() => {
