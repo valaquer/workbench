@@ -27,7 +27,7 @@
 
 	// Filters
 	let filterCharacter = $state('');
-	let filterReview = $state(typeof localStorage !== 'undefined' ? (localStorage.getItem('bavaria-filter-review') ?? 'accepted') : 'accepted');
+	let filterReview = $state('');
 	let filterDeployment = $state('');
 
 	$effect(() => {
@@ -52,6 +52,7 @@
 	)].sort());
 
 	let ids = $derived(allIds.filter(id => {
+		if (!filterReview) return false;
 		if (filterReview !== 'intermediate' && votes[id] === 'intermediate') return false;
 		if (filterReview !== 'archived' && votes[id] === 'archived') return false;
 		if (filterReview === 'accepted' && votes[id] !== 'approved') return false;
