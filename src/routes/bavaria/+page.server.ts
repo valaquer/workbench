@@ -141,8 +141,8 @@ async function loadManifest(): Promise<Manifest> {
 
 export async function load() {
 	const entries = await readdir(BAVARIA_DIR).catch(() => []);
-	const images = entries.filter((f) => /\.(png|jpg|jpeg|webp)$/i.test(f));
-	const ids = images.map((f) => f.replace(/\.(png|jpg|jpeg|webp)$/i, ''));
+	const images = entries.filter((f) => /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
+	const ids = images.map((f) => f.replace(/\.(png|jpg|jpeg|webp|svg)$/i, ''));
 
 	ids.sort((a, b) => a.localeCompare(b));
 

@@ -13,7 +13,7 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 
 	const entries = await readdir(BAVARIA_DIR).catch(() => []);
-	const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp)$/i.test(f));
+	const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
 
 	if (!match) {
 		throw error(404, 'Image not found');
@@ -25,6 +25,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		ext === '.png' ? 'image/png' :
 		ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
 		ext === '.webp' ? 'image/webp' :
+		ext === '.svg' ? 'image/svg+xml' :
 		'application/octet-stream';
 
 	try {
