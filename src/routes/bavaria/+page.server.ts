@@ -140,9 +140,15 @@ async function loadManifest(): Promise<Manifest> {
 }
 
 export async function load() {
-	const entries = await readdir(BAVARIA_DIR).catch(() => []);
-	const images = entries.filter((f) => /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
-	const ids = images.map((f) => f.replace(/\.(png|jpg|jpeg|webp|svg)$/i, ''));
+	const subdirs = ['', 'accepted', 'rejected', 'pending-review'];
+	const allImages: string[] = [];
+	for (const sub of subdirs) {
+		const dir = sub ? path.join(BAVARIA_DIR, sub) : BAVARIA_DIR;
+		const entries = await readdir(dir).catch(() => []);
+		const images = entries.filter((f) => /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
+		allImages.push(...images);
+	}
+	const ids = [...new Set(allImages.map((f) => f.replace(/\.(png|jpg|jpeg|webp|svg)$/i, '')))];
 
 	ids.sort((a, b) => a.localeCompare(b));
 

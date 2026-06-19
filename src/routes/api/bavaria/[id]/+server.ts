@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { RequestHandler } from './$types';
 
 const BAVARIA_DIR = '/Users/d.patnaik/honeybloom/library/bavaria';
+const SUBDIRS = ['', 'accepted', 'rejected', 'pending-review'];
 
 export const GET: RequestHandler = async ({ params }) => {
 	const id = params.id;
@@ -12,15 +13,21 @@ export const GET: RequestHandler = async ({ params }) => {
 		throw error(400, 'Invalid ID');
 	}
 
-	const entries = await readdir(BAVARIA_DIR).catch(() => []);
-	const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
-
-	if (!match) {
-		throw error(404, 'Image not found');
+	let filePath: string | null = null;
+	for (const sub of SUBDIRS) {
+		const dir = sub ? path.join(BAVARIA_DIR, sub) : BAVARIA_DIR;
+		const entries = await readdir(dir).catch(() => []);
+		const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
+		if (match) {
+			filePath = path.join(dir, match);
+			break;
+		}
 	}
 
-	const filePath = path.join(BAVARIA_DIR, match);
-	const ext = path.extname(match).toLowerCase();
+	if (!filePath) {
+		throw error(404, 'Image not found');
+	}
+	const ext = path.extname(filePath).toLowerCase();
 	const contentType =
 		ext === '.png' ? 'image/png' :
 		ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
