@@ -3,8 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import type { RequestHandler } from './$types';
 
-const BAVARIA_DIR = '/Users/d.patnaik/honeybloom/library/bavaria';
-const SUBDIRS = ['', 'accepted', 'rejected', 'pending-review'];
+const BAVARIA_DIR = '/Users/deepak-macmini/honeybloom/library/bavaria';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const id = params.id;
@@ -13,11 +12,15 @@ export const GET: RequestHandler = async ({ params }) => {
 		throw error(400, 'Invalid ID');
 	}
 
+	// Scan all numbered subfolders dynamically
+	const topEntries = await readdir(BAVARIA_DIR).catch(() => []);
+	const folders = topEntries.filter((f) => /^(\d+-|[A-Z]\d+\s)/.test(f));
+
 	let filePath: string | null = null;
-	for (const sub of SUBDIRS) {
-		const dir = sub ? path.join(BAVARIA_DIR, sub) : BAVARIA_DIR;
+	for (const folder of folders) {
+		const dir = path.join(BAVARIA_DIR, folder);
 		const entries = await readdir(dir).catch(() => []);
-		const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
+		const match = entries.find((f) => f.startsWith(id + '.') && /\.(png|jpg|jpeg|webp|svg|mp4)$/i.test(f));
 		if (match) {
 			filePath = path.join(dir, match);
 			break;
@@ -33,6 +36,7 @@ export const GET: RequestHandler = async ({ params }) => {
 		ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' :
 		ext === '.webp' ? 'image/webp' :
 		ext === '.svg' ? 'image/svg+xml' :
+		ext === '.mp4' ? 'video/mp4' :
 		'application/octet-stream';
 
 	try {

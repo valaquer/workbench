@@ -9,6 +9,10 @@
 	$effect(() => { votes = { ...data.votes }; });
 	let meta: Record<string, AssetMeta> = $derived(data.meta ?? {});
 	let comments: Record<string, string> = $derived(data.comments ?? {});
+	let folders: string[] = $derived(data.folders ?? []);
+	let folderData: Record<string, string[]> = $derived(data.folderData ?? {});
+	let videoIds = $derived(new Set(data.videoIds ?? []));
+	let selectedFolder = $state('');
 
 	// Realtime asset detection via SSE (REQ-005)
 	let eventSource: EventSource | null = null;
@@ -25,48 +29,34 @@
 		if (eventSource) eventSource.close();
 	});
 
-	// Filters
-	let filterCharacter = $state('');
-	let filterReview = $state('');
-	let filterDeployment = $state('');
-
+	// Folder selection
 	$effect(() => {
 		if (typeof localStorage !== 'undefined') {
-			localStorage.setItem('bavaria-filter-review', filterReview);
+			const saved = localStorage.getItem('bavaria-selected-folder');
+			if (saved && folders.includes(saved)) {
+				selectedFolder = saved;
+			} else if (folders.length > 0) {
+				selectedFolder = folders[0];
+			}
+		} else if (folders.length > 0 && !selectedFolder) {
+			selectedFolder = folders[0];
 		}
 	});
 
-	function setFilterReview(v: string) {
-		if (filterReview === v) {
-			filterReview = '';
-		} else {
-			filterReview = v;
-			if (v !== 'accepted') filterDeployment = '';
+	$effect(() => {
+		if (typeof localStorage !== 'undefined' && selectedFolder) {
+			localStorage.setItem('bavaria-selected-folder', selectedFolder);
 		}
+	});
+
+	function folderLabel(f: string): string {
+		return f.replace(/^\d+-/, '').replace(/^[A-Z]\d+\s/, '').replace(/-/g, ' ');
 	}
 
-	let characters = $derived([...new Set(
-		Object.entries(meta)
-			.filter(([, m]) => m.characterName)
-			.map(([, m]) => m.characterName!)
-	)].sort());
-
-	let ids = $derived(allIds.filter(id => {
-		if (!filterReview) return false;
-		if (filterReview !== 'intermediate' && votes[id] === 'intermediate') return false;
-		if (filterReview !== 'archived' && votes[id] === 'archived') return false;
-		if (filterReview === 'accepted' && votes[id] !== 'approved') return false;
-		if (filterReview === 'rejected' && votes[id] !== 'rejected') return false;
-		if (filterReview === 'pending' && votes[id]) return false;
-		if (filterReview === 'intermediate' && votes[id] !== 'intermediate') return false;
-		if (filterReview === 'archived' && votes[id] !== 'archived') return false;
-		const m = meta[id];
-		if (!m) return !filterCharacter && !filterDeployment;
-		if (filterCharacter && m.characterName !== filterCharacter) return false;
-		if (filterDeployment === 'staged' && m?.deployment !== 'staged') return false;
-		if (filterDeployment === 'published' && m?.deployment !== 'published') return false;
-		return true;
-	}));
+	let ids = $derived.by(() => {
+		const folderIds = selectedFolder ? (folderData[selectedFolder] ?? []) : allIds;
+		return folderIds.sort((a, b) => a.localeCompare(b));
+	});
 
 	// Lightbox
 	let lightboxId: string | null = $state(null);
@@ -170,12 +160,20 @@
 		ondragend={() => dragId = null}
 		role="listitem"
 	>
-		<img
-			src="/api/bavaria/{id}"
-			alt={id}
-			class="w-full rounded-lg pointer-events-none"
-			loading="lazy"
-		/>
+		{#if videoIds.has(id)}
+			<video
+				src="/api/bavaria/{id}"
+				class="w-full rounded-lg pointer-events-none"
+				autoplay muted loop playsinline
+			></video>
+		{:else}
+			<img
+				src="/api/bavaria/{id}"
+				alt={id}
+				class="w-full rounded-lg pointer-events-none"
+				loading="lazy"
+			/>
+		{/if}
 		<div class="flex items-center gap-2 mt-1.5">
 			<span class="font-mono text-xs tracking-wider text-[#7a5e4a] font-medium">{id}</span>
 			{#if m}
@@ -194,55 +192,37 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<!-- Header -->
-<nav class="py-4 px-6 bg-dark">
-	<div class="max-w-7xl mx-auto">
-		<h1 class="font-satoshi text-xl text-cream">Bavaria</h1>
-		<div class="flex items-center gap-4 mt-2">
-			{#if characters.length > 0}
-				<select
-					class="bg-dark text-cream/80 text-xs px-2 py-px rounded border border-cream/10 font-mono h-[20px]"
-					bind:value={filterCharacter}
+<div class="bavaria-root">
+	<!-- Sidebar (verbatim from Facade +page.svelte lines 1102-1104, 1107-1114, 1118-1124) -->
+	<div style="background: var(--color-bg-panel); border-right: 1px dashed var(--color-bg-step4); display: flex; flex-direction: column; height: 100vh; width: 280px; flex-shrink: 0;">
+		<div style="flex: 1; overflow-y: auto; font-family: var(--font-sans);">
+			<!-- Section header (Facade line 1108-1114) -->
+			<div
+				style="padding: 1rem 1rem 1rem 1.5rem; cursor: pointer; border-top: 1px dashed var(--color-bg-step4); border-bottom: 1px dashed var(--color-bg-step4);"
+			>
+				<p style="display: inline-block; font-size: 13px; font-weight: 500; font-family: var(--font-sans); background: var(--gradient-accent); background-repeat: no-repeat; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Teammates</p>
+			</div>
+			<!-- Folder items (Facade teammate row pattern, lines 1118-1124) -->
+			{#each folders as folder, i}
+				{@const count = (folderData[folder] ?? []).length}
+				<div
+					class="sidebar-row"
+					onclick={() => selectedFolder = folder}
+					style="padding: 0 1rem 0 1.5rem; cursor: pointer; color: {selectedFolder === folder ? 'var(--color-text)' : 'var(--color-text-muted)'}; background: {selectedFolder === folder ? 'var(--color-bg-element)' : (i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent')}; position: relative;"
+					role="button"
+					tabindex="0"
+					onkeydown={() => {}}
 				>
-					<option value="">All characters</option>
-					{#each characters as c}
-						<option value={c}>{c}</option>
-					{/each}
-				</select>
-			{/if}
-			<div class="flex" role="radiogroup" aria-label="Review status">
-				{#each [{v: 'accepted', l: 'Accepted'}, {v: 'rejected', l: 'Rejected'}, {v: 'pending', l: 'Pending Review'}, {v: 'intermediate', l: 'Intermediate'}, {v: 'archived', l: 'Archived'}] as item, i}
-					<button
-						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterReview === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
-						onclick={() => setFilterReview(item.v)}
-					>
-						{item.l}
-					</button>
-				{/each}
-			</div>
-			<div class="flex {filterReview !== 'accepted' ? 'opacity-30 pointer-events-none' : ''}" role="radiogroup" aria-label="Deployment status">
-				{#each [{v: 'staged', l: 'Staged'}, {v: 'published', l: 'Published'}] as item, i}
-					<button
-						class="text-xs font-mono px-3 py-px border border-cream/10 {i > 0 ? 'border-l-0' : ''} {filterDeployment === item.v ? 'bg-cream/20 text-cream shadow-[inset_0_1px_3px_rgba(0,0,0,0.4)]' : 'bg-dark text-cream/50 hover:bg-cream/10'}"
-						onclick={() => filterDeployment = filterDeployment === item.v ? '' : item.v}
-					>
-						{item.l}
-					</button>
-				{/each}
-			</div>
+					<div><span>{folderLabel(folder)}</span> {#if count > 0}<span class="sidebar-meta" style="font-size: 9px; color: #666;">{count}</span>{/if}</div>
+				</div>
+			{/each}
 		</div>
 	</div>
-</nav>
 
-<!-- Grid -->
-<div class="min-h-screen bg-dark px-6 pb-12">
-	<div class="max-w-7xl mx-auto">
-		{#if ids.length === 0}
-			<div class="flex items-center justify-center h-64">
-				<p class="text-cream/40 text-lg">{allIds.length === 0 ? 'No assets in Bavaria folder yet.' : 'No assets match the selected filters.'}</p>
-			</div>
-		{:else}
-			<div class="flex flex-wrap gap-4 mt-6">
+	<!-- Main content -->
+	<div style="flex: 1; overflow-y: auto; padding: 1.5rem; background: var(--color-bg);">
+		{#if ids.length > 0}
+			<div class="flex flex-wrap gap-4">
 				{#each ids as id}
 					{@render imageCard(id)}
 				{/each}
@@ -250,6 +230,35 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.bavaria-root {
+		--color-bg: #0b0d10;
+		--color-bg-panel: #0e1114;
+		--color-bg-element: #1e1e1e;
+		--color-bg-step4: #282a30;
+		--color-text: #CDCCC2;
+		--color-text-muted: #808080;
+		--font-sans: 'Inter', sans-serif;
+		--font-mono: 'JetBrains Mono', ui-monospace, monospace;
+		--gradient-accent: linear-gradient(90deg, #5c9cf5, #9d7cd8);
+		display: flex;
+		height: 100vh;
+		background: var(--color-bg);
+		color: var(--color-text);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		line-height: 1.8;
+		font-weight: 300;
+	}
+	.sidebar-row:hover .sidebar-meta {
+		opacity: 1 !important;
+	}
+	.sidebar-meta {
+		opacity: 0;
+		transition: opacity 0.15s;
+	}
+</style>
 
 <!-- Lightbox -->
 {#if lightboxId}
@@ -260,13 +269,21 @@
 		role="dialog"
 	>
 		<div class="relative overflow-hidden" onclick={(e) => e.stopPropagation()}>
-			<img
-				src="/api/bavaria/{lightboxId}"
-				alt={lightboxId}
-				class="max-h-[90vh] max-w-[90vw] object-contain transition-transform duration-200 {zoom ? 'cursor-zoom-out' : 'cursor-zoom-in'}"
-				style={zoom ? `transform: scale(3); transform-origin: ${zoom.x}% ${zoom.y}%` : ''}
-				onclick={onLightboxClick}
-			/>
+			{#if videoIds.has(lightboxId)}
+				<video
+					src="/api/bavaria/{lightboxId}"
+					class="max-h-[90vh] max-w-[90vw] object-contain"
+					autoplay muted loop playsinline controls
+				></video>
+			{:else}
+				<img
+					src="/api/bavaria/{lightboxId}"
+					alt={lightboxId}
+					class="max-h-[90vh] max-w-[90vw] object-contain transition-transform duration-200 {zoom ? 'cursor-zoom-out' : 'cursor-zoom-in'}"
+					style={zoom ? `transform: scale(3); transform-origin: ${zoom.x}% ${zoom.y}%` : ''}
+					onclick={onLightboxClick}
+				/>
+			{/if}
 			{#if !zoom}
 				<div class="absolute bottom-2 right-2 flex gap-1">
 					{@render voteButtons(lightboxId, 'lg')}
@@ -295,11 +312,19 @@
 				role="img"
 			>
 				<div class="relative">
-					<img
-						src="/api/bavaria/{cid}"
-						alt={cid}
-						class="max-h-[85vh] object-contain"
-					/>
+					{#if videoIds.has(cid)}
+						<video
+							src="/api/bavaria/{cid}"
+							class="max-h-[85vh] object-contain"
+							autoplay muted loop playsinline controls
+						></video>
+					{:else}
+						<img
+							src="/api/bavaria/{cid}"
+							alt={cid}
+							class="max-h-[85vh] object-contain"
+						/>
+					{/if}
 					<div class="absolute bottom-2 right-2 flex gap-1">
 						{@render voteButtons(cid, 'lg')}
 					</div>

@@ -1,13 +1,13 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const BAVARIA_DIR = '/Users/d.patnaik/honeybloom/library/bavaria';
+const BAVARIA_DIR = '/Users/deepak-macmini/honeybloom/library/bavaria';
 const MANIFEST_FILE = path.join(BAVARIA_DIR, 'bavaria-manifest.json');
 
-const CSV009_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/CSV009-outputs.csv';
-const CSV001_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/CSV001-physiques.csv';
-const CSV002_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/CSV002-identities.csv';
-const CSV000_PATH = '/Users/d.patnaik/honeybloom/library/ip/prompt-engineer-v8/CSV000-use-cases.csv';
+const CSV009_PATH = '/Users/deepak-macmini/honeybloom/library/ip/prompt-engineer-v8/CSV009-outputs.csv';
+const CSV001_PATH = '/Users/deepak-macmini/honeybloom/library/ip/prompt-engineer-v8/CSV001-physiques.csv';
+const CSV002_PATH = '/Users/deepak-macmini/honeybloom/library/ip/prompt-engineer-v8/CSV002-identities.csv';
+const CSV000_PATH = '/Users/deepak-macmini/honeybloom/library/ip/prompt-engineer-v8/CSV000-use-cases.csv';
 
 interface AssetEntry {
 	vote: 'approved' | 'rejected' | 'intermediate' | null;
@@ -140,15 +140,28 @@ async function loadManifest(): Promise<Manifest> {
 }
 
 export async function load() {
-	const subdirs = ['', 'accepted', 'rejected', 'pending-review'];
-	const allImages: string[] = [];
-	for (const sub of subdirs) {
-		const dir = sub ? path.join(BAVARIA_DIR, sub) : BAVARIA_DIR;
+	// Scan numbered folders dynamically
+	const topEntries = await readdir(BAVARIA_DIR).catch(() => []);
+	const folders = topEntries.filter((f) => /^(\d+-|[A-Z]\d+\s)/.test(f)).sort();
+
+	const folderData: Record<string, string[]> = {};
+	const allIds: string[] = [];
+	const videoSet = new Set<string>();
+	for (const folder of folders) {
+		const dir = path.join(BAVARIA_DIR, folder);
 		const entries = await readdir(dir).catch(() => []);
-		const images = entries.filter((f) => /\.(png|jpg|jpeg|webp|svg)$/i.test(f));
-		allImages.push(...images);
+		const assets = entries.filter((f) => /\.(png|jpg|jpeg|webp|svg|mp4)$/i.test(f));
+		const ids = assets.map((f) => f.replace(/\.(png|jpg|jpeg|webp|svg|mp4)$/i, ''));
+		for (const f of assets) {
+			if (/\.mp4$/i.test(f)) {
+				const id = f.replace(/\.mp4$/i, '');
+				videoSet.add(id);
+			}
+		}
+		folderData[folder] = ids;
+		allIds.push(...ids);
 	}
-	const ids = [...new Set(allImages.map((f) => f.replace(/\.(png|jpg|jpeg|webp|svg)$/i, '')))];
+	const ids = [...new Set(allIds)];
 
 	ids.sort((a, b) => a.localeCompare(b));
 
@@ -192,5 +205,5 @@ export async function load() {
 		};
 	}
 
-	return { ids, votes, meta, comments };
+	return { ids, votes, meta, comments, folders, folderData, videoIds: [...videoSet] };
 }
