@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { RequestHandler } from './$types';
 
-const GALLERY_DIR = '/Users/d.patnaik/images/2026-03-03-E006';
+const GALLERY_DIR = '/Users/deepak-macmini/images/2026-03-03-E006';
 
 export const GET: RequestHandler = async ({ params }) => {
 	const id = params.id;

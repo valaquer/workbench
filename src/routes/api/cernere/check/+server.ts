@@ -2,9 +2,9 @@ import { json } from '@sveltejs/kit';
 import { stat, readdir } from 'fs/promises';
 import path from 'path';
 
-const OUTPUTS_DIR = '/Users/d.patnaik/honeybloom/wyatt/cernere/outputs';
-const TC_FEEDBACK_DIR = '/Users/d.patnaik/honeybloom/eva/tc-feedback';
-const BOSS_FEEDBACK_DIR = '/Users/d.patnaik/honeybloom/eva/boss-feedback';
+const OUTPUTS_DIR = '/Users/deepak-macmini/honeybloom/wyatt/cernere/outputs';
+const TC_FEEDBACK_DIR = '/Users/deepak-macmini/honeybloom/eva/tc-feedback';
+const BOSS_FEEDBACK_DIR = '/Users/deepak-macmini/honeybloom/eva/boss-feedback';
 
 const CONDITIONS = ['C1', 'C2', 'C3', 'C4', 'C5'];
 

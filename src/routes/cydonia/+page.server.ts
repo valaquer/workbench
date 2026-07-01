@@ -2,8 +2,8 @@ import { readFile, readdir } from 'fs/promises';
 import path from 'path';
 import { marked } from 'marked';
 
-const OUTPUTS_DIR = '/Users/d.patnaik/honeybloom/wyatt/sprint18-redo/outputs';
-const SCORING_DIR = '/Users/d.patnaik/honeybloom/eva';
+const OUTPUTS_DIR = '/Users/deepak-macmini/honeybloom/wyatt/sprint18-redo/outputs';
+const SCORING_DIR = '/Users/deepak-macmini/honeybloom/eva';
 
 interface Turn {
 	turn: number;

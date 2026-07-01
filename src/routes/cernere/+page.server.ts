@@ -2,8 +2,8 @@ import { readFile, readdir } from 'fs/promises';
 import path from 'path';
 import { marked } from 'marked';
 
-const OUTPUTS_DIR = '/Users/d.patnaik/honeybloom/wyatt/cernere/outputs';
-const SCORING_DIR = '/Users/d.patnaik/honeybloom/eva';
+const OUTPUTS_DIR = '/Users/deepak-macmini/honeybloom/wyatt/cernere/outputs';
+const SCORING_DIR = '/Users/deepak-macmini/honeybloom/eva';
 const TC_FEEDBACK_DIR = path.join(SCORING_DIR, 'tc-feedback');
 const BOSS_FEEDBACK_DIR = path.join(SCORING_DIR, 'boss-feedback');
 
