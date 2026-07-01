@@ -1,6 +1,6 @@
 <script>
 	const routes = [
-		'/bavaria', '/cernere', '/cydonia', '/lisbon', '/styleguide'
+		'/bavaria', '/cernere', '/cydonia', '/lisbon'
 	];
 
 	function getVisitHistory() {
